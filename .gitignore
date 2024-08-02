@@ -6,4 +6,5 @@ deploy/
 output/
 dist/
 .vscode/
+.cache/**
 .cache/
