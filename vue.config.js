@@ -22,5 +22,13 @@ module.exports = defineConfig({
    * 如果希望node_modules下的文件时对应的缓存可以失效，
    * 可以将configureWebpack.snap.managedPaths修改为 []
    */
-  configureWebpack(config) {}
+  configureWebpack(config) {
+    return {
+      module: {
+        rules: [
+          { test: /\.scss/, use: 'sass-loader' }
+        ]
+      }
+    }
+  }
 })

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "mpx-cli-service serve",
+    "dev": "mpx-cli-service serve",
     "build": "mpx-cli-service build",
     "lint": "eslint --ext .js,.ts,.mpx src/"
   },
@@ -36,10 +36,13 @@
     "@mpxjs/vue-cli-plugin-mpx-eslint": "^2.0.0",
     "@mpxjs/vue-cli-plugin-mpx-utility-first-css": "^2.0.0",
     "@mpxjs/webpack-plugin": "^2.9.0",
+    "@unocss/preset-wind": "^0.61.9",
     "@vue/cli-service": "~5.0.0",
     "autoprefixer": "^10.2.4",
     "eslint": "^7.0.0",
     "postcss": "^8.2.6",
+    "sass": "^1.77.8",
+    "sass-loader": "^16.0.0",
     "stylus": "^0.55.0",
     "stylus-loader": "^6.1.0",
     "webpack": "^5.43.0"

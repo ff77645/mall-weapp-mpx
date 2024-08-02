@@ -1,15 +1,34 @@
 {
-  "setting": {
-    "newFeature": true,
-    "urlCheck": true,
-    "es6": false,
-    "postcss": true,
-    "minified": false,
-    "checkSiteMap": false,
-    "autoAudits": false
-  },
-  "appid": "wxdebec0414d939220",
-  "projectname": "mall-weapp-mpx",
-  "description": "A mpx project",
-  "condition": {}
+    "setting": {
+        "newFeature": true,
+        "urlCheck": true,
+        "es6": false,
+        "postcss": true,
+        "minified": false,
+        "checkSiteMap": false,
+        "autoAudits": false,
+        "babelSetting": {
+            "ignore": [],
+            "disablePlugins": [],
+            "outputPath": ""
+        },
+        "coverView": false,
+        "enhance": false,
+        "showShadowRootInWxmlPanel": false,
+        "packNpmRelationList": [],
+        "ignoreUploadUnusedFiles": true
+    },
+    "description": "A mpx project",
+    "condition": {},
+    "compileType": "miniprogram",
+    "editorSetting": {
+        "tabIndent": "insertSpaces",
+        "tabSize": 4
+    },
+    "libVersion": "3.5.3",
+    "packOptions": {
+        "ignore": [],
+        "include": []
+    },
+    "appid": "wxdebec0414d939220"
 }

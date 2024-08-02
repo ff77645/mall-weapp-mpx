@@ -1,6 +1,6 @@
 <template>
   <view class="list">
-    <view wx:for="{{listData}}" wx:key="*this">{{item}}</view>
+    <view wx:for="{{listData}}" class="text-red" wx:key="*this">{{item}}</view>
   </view>
 </template>
 
@@ -14,13 +14,15 @@ createComponent({
 })
 </script>
 
-<style lang="stylus">
-  .list
-    background-color red
+<style lang="scss">
+.list{
+  background: #666;
+}
 </style>
 
 <script type="application/json">
   {
-    "component": true
+    "component": true,
+    "styleIsolation": "apply-shared"
   }
 </script>
