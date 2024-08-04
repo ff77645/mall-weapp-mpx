@@ -1,0 +1,58 @@
+<template>
+  <van-nav-bar
+    title="购物车"
+  />
+
+  <!-- 编辑 -->
+  <view class="px-4 py-3 bg-white flex justify-between">
+    <view></view>
+    <text bind:tap="changeIsEdit" class="text-xs">{{isEdit ? '完成' : '编辑'}}</text>
+  </view>
+  <scroll-view
+    class="scrollable"
+    scroll-y
+  >
+    <view style="height:1px;"></view>
+    <van-swipe-cell wx:for="{{3}}" wx:key="*this" right-width="{{ 65 }}">
+      <product></product>
+      <view slot="right" class="h-full bg-red-500 flex flex-col justify-center items-center" style="width:65px;">
+        <van-icon name="delete-o" size="16" color="#fff" />
+        <text class="text-xs text-white">删除</text>
+      </view>
+    </van-swipe-cell>
+  </scroll-view>
+  <!-- 购买 -->
+  <view class="px-4 py-2 bg-white flex flex-row items-center justify-between" style="height:51px;">
+    <van-checkbox value="{{ checkedAll }}" icon-size="18" checked-color="#ee0a24" label-class="text-sm text-gray-600" bind:change="changeCheckedAll">全选</van-checkbox>
+    <view wx:if="{{isEdit}}" class="flex flex-nowrap gap-2">
+      <van-button type="danger" size="mini" round plain>删除</van-button>
+    </view>
+    <view wx:else class="flex flex-row flex-nowrap gap-3 items-center">
+      <view class="flex items-center">
+        <text class="text-sm">合计:</text>
+        <text class="text-xs" style="color:#ee0a24;">￥</text>
+        <text class="font-bold" style="color:#ee0a24;">129</text>
+      </view>
+      <van-button color="linear-gradient(to right, rgb(255, 96, 52), rgb(238, 10, 36))" size="small" round custom-style="width:100px;height:35px;">去结算</van-button>
+    </view>
+  </view>
+</template>
+
+<script>
+import { createPage } from '@mpxjs/core'
+
+createPage({
+  data: {
+    checkedAll: false,
+    isEdit: false
+  },
+  changeIsEdit() {
+    this.setData({
+      isEdit: !this.data.isEdit
+    })
+  },
+  changeCheckedAll(e) {
+    console.log({ e })
+  }
+})
+</script>

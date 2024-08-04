@@ -1,0 +1,15 @@
+<template>
+  <view class="h-50px flex flex-nowrap px-4 bg-white items-center text-center">
+    <view class="flex-1">首页</view>
+    <view class="flex-1">商城</view>
+    <view class="flex-1">购物车</view>
+    <view class="flex-1">我的</view>
+  </view>
+</template>
+
+<style lang="scss">
+.tab-bar{
+  pointer-events: auto;
+  position: absolute;
+}
+</style>

@@ -1,0 +1,18 @@
+<template>
+  <view class="flex flex-row justify-center py-1">
+    <view class="text-sm text-slate-600">
+      {{done ? '没有更多了' : '查看更过'}}
+    </view>
+  </view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    done: Boolean,
+    loading: Boolean
+  }
+})
+</script>

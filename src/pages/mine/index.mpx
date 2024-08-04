@@ -1,0 +1,148 @@
+<template>
+  <van-nav-bar
+    title="我的"
+  />
+  <scroll-view
+    class="scrollable"
+    scroll-y
+  >
+    <view class="" style="height:1px;"></view>
+
+    <!-- 会员信息 -->
+    <view class="m-4">
+      <view class="rounded-md p-4" style="background:linear-gradient(to left, #232526, #414345);">
+        <view class="flex flex-row flex-nowrap items-center gap-3">
+          <!-- 用户头像 -->
+          <view class="w-12 h-12">
+            <image mode="aspectFill" class="w-full h-full rounded-full" src="http://pic.yupoo.com/isfy666/b8e8c4b8/f6ebef7d.jpeg" />
+          </view>
+          <!-- 用户名称 -->
+          <view wx:if="{{customer}}" class="text-white text-sm whitespace-nowrap text-ellipsis overflow-hidden">
+            {{customer.name}}
+          </view>
+          <van-button wx:else bind:tap="getUserInfo">登录</van-button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 优惠券/积分/卡包 -->
+    <view
+      class="m-4 rounded-md py-4 bg-white flex flex-row flex-nowrap justify-around"
+    >
+      <view bind:tap="navToCoupon" class="text-center">
+        <view class="font-bold text-black">0</view>
+        <view class="text-xs text-slate-600">优惠券</view>
+      </view>
+      <view class="text-center">
+        <view class="font-bold text-black">658</view>
+        <view class="text-xs text-slate-600">积分</view>
+      </view>
+    </view>
+
+    <!-- 订单 -->
+    <view
+      class="m-4 rounded-md py-4 bg-white flex flex-row flex-nowrap justify-around"
+    >
+      <view mark:type="1" bind:tap="navToOrder" class="text-center">
+        <van-icon name="todo-list-o" size="22px" />
+        <view class="text-xs text-slate-600">待付款</view>
+      </view>
+      <view mark:type="2" bind:tap="navToOrder" class="text-center">
+        <van-icon name="send-gift-o" size="22px" />
+        <view class="text-xs text-slate-600">待发货</view>
+      </view>
+      <view mark:type="3" bind:tap="navToOrder" class="text-center">
+        <van-icon name="logistics" size="22px" />
+        <view class="text-xs text-slate-600">待收货</view>
+      </view>
+      <!-- <view class="text-center">
+        <van-icon name="cash-o" size="22px" />
+        <view class="text-xs text-slate-600">售后</view>
+      </view> -->
+      <view mark:type="0" bind:tap="navToOrder" class="text-center">
+        <van-icon name="notes-o" size="22px" />
+        <view class="text-xs text-slate-600">全部订单</view>
+      </view>
+    </view>
+
+    <!-- 其他 -->
+    <van-cell-group border="{{false}}" inset>
+      <van-cell title="地址管理" is-link bind:click="navToAddress" >
+        <van-icon slot="icon" name="location" color="#2f3542" custom-style="margin-right:3px;" />
+      </van-cell>
+      <van-cell title="我的收藏" is-link bind:click="navToQueueBill" >
+        <van-icon slot="icon" name="like" color="#2f3542" custom-style="margin-right:3px;" />
+      </van-cell>
+      <van-cell title="在线客服" is-link bind:click="navToReserveBill">
+        <van-icon slot="icon" name="chat" color="#2f3542" custom-style="margin-right:3px;" />
+      </van-cell>
+    </van-cell-group>
+
+  </scroll-view>
+  <i-tabbar active="mine"></i-tabbar>
+</template>
+
+<script>
+import { createPage } from '@mpxjs/core'
+
+createPage({
+  data: {
+    customer: null
+  },
+  async getCustomerInfo() {
+    if (this.data.openid) return
+    const data = await wx.login()
+    console.log({ data })
+    if (data.errMsg !== 'login:ok') return
+    const res = await customerApi.findForWxCode({ code: data.code })
+    console.log({ res })
+    this.setOpenid(res.openid)
+    if (res.customer) this.setCustomer(res.customer)
+  },
+  async getUserInfo() {
+    const data = await wx.getUserProfile({ desc: '创建会员' })
+    if (!data.errMsg.endsWith('ok')) return
+    const userInfo = data.userInfo
+    console.log({ userInfo })
+  },
+  navToConsumeBill() {
+    if (!this.data.openid) return this.getCustomerInfo()
+    wx.navigateTo({
+      url: '/mine/consume-bill/index'
+    })
+  },
+  navToQueueBill() {
+    wx.navigateTo({
+      url: '/mine/queue-bill/index'
+    })
+  },
+  navToReserveBill() {
+    wx.navigateTo({
+      url: '/mine/reserve-bill/index'
+    })
+  },
+  navToCoupon() {
+    wx.navigateTo({
+      url: '/mine/coupon/index'
+    })
+  },
+  navToAddress() {
+    wx.navigateTo({
+      url: '/mine/address/index'
+    })
+  },
+  navToOrder({ mark }) {
+    const { type } = mark
+    console.log({ type })
+    wx.navigateTo({
+      url: '/mine/order/index?type=' + type
+    })
+  },
+  onLoad() {
+    this.getCustomerInfo()
+  },
+  navBack() {
+    wx.navigateBack()
+  }
+})
+</script>

@@ -12,14 +12,73 @@ createApp({
 </script>
 
 <style>
-  /*此处编写全局样式*/
+@import '@vant/weapp/common/index.wxss';
+
+page,
+view,
+text,
+image,
+button,
+video,
+map,
+scroll-view,
+swiper,
+input,
+textarea,
+navigator {
+  position: relative;
+  box-sizing: border-box;
+  background-origin: border-box;
+  isolation: isolate;
+}
+page {
+  height: 100vh;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: hidden;
+  --nav-bar-icon-color:#333;
+  background-color: #f1f2f6;
+}
+.scrollable{
+  flex: 1;
+  overflow: auto;
+}
+
+.safe-area-inset-bottom{
+  height: constant(safe-area-inset-bottom);
+  height: env(safe-area-inset-bottom);
+}
 </style>
 
-<script type="application/json">
-  {
+<script name="json">
+  module.exports = {
     "pages": [
-      "./pages/index"
-    ]
+      "./pages/home",
+      "./pages/mall",
+      "./pages/cart",
+      "./pages/mine",
+    ],
+    "tabBar":{
+      "custom":true,
+      list:[
+        {
+        "pagePath":"pages/home/index",
+        "text":"首页"
+      },
+      {
+        "pagePath":"pages/mall/index",
+        "text":"商城"
+      },
+      {
+        "pagePath":"pages/cart/index",
+        "text":"购物车"
+      },
+      {
+        "pagePath":"pages/mine/index",
+        "text":"我的"
+      }
+      ]
+    }
   }
 </script>
 

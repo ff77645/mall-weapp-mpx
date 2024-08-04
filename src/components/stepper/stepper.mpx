@@ -1,0 +1,18 @@
+<template>
+  <view
+    class="flex flex-nowrap items-center"
+  >
+    <view
+      class="stepper-minus"
+      style="width:18px;height:18px;"
+      bind:tap="clickMinus"
+    ></view>
+    <view class="text-center" style="width:26px;">{{value}}</view>
+    <van-icon
+      name="add"
+      color="#ee0a24"
+      size="20"
+      bind:tap="clickPlus"
+    ></van-icon>
+  </view>
+</template>

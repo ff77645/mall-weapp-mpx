@@ -1,0 +1,70 @@
+<template>
+  <van-nav-bar
+    title="首页"
+  />
+  <scroll-view
+    class="scrollable"
+    scroll-y
+  >
+    <!-- 轮播 -->
+    <swiper indicator-dots class="" style="height: 280px;">
+      <swiper-item wx:for="{{swiperList}}" wx:key="*this">
+        <image class="w-full h-full object-center object-cover" src="{{item.src}}" mode="aspectFill"/>
+      </swiper-item>
+    </swiper>
+
+    <!-- 导航 -->
+    <view class="m-4 rounded-md flex flex-wrap gap-4">
+      <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3" style="min-width:40%;">
+        <text>认养</text>
+      </view>
+      <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3" style="min-width:40%;">
+        <text>拼猪</text>
+      </view>
+      <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3" style="min-width:40%;">
+        <text>认养计划</text>
+      </view>
+    </view>
+  </scroll-view>
+</template>
+<script>
+import { createPage } from '@mpxjs/core'
+
+createPage({
+  data: {
+    swiperList: [
+      { src: 'http://pic.yupoo.com/isfy666/ca92284b/96330991.jpeg' },
+      { src: 'http://pic.yupoo.com/isfy666/d4964974/4a3260c0.jpeg' },
+      { src: 'http://pic.yupoo.com/isfy666/b7c9c6c4/bc4d4fcf.jpeg' }
+    ]
+  },
+  async getCustomerInfo() {
+    const data = await wx.login()
+    console.log({ data })
+    if (data.errMsg !== 'login:ok') return
+    const res = await customerApi.findForWxCode({ code: data.code })
+    console.log({ res })
+    this.setOpenid(res.openid)
+    // if(res.customer) this.setCustomer(res.customer)
+  },
+  async navToOrder() {
+    if (!this.data.openid) await this.getCustomerInfo()
+    wx.navigateTo({
+      url: '/pages/order/index'
+    })
+  },
+  navToReserve() {
+    wx.navigateTo({
+      url: '/pages/reserve/index'
+    })
+  },
+  navToQueue() {
+    wx.navigateTo({
+      url: '/pages/queue/index'
+    })
+  },
+  navBack() {
+    wx.navigateBack()
+  }
+})
+</script>
