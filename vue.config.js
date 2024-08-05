@@ -1,4 +1,6 @@
 const { defineConfig } = require('@vue/cli-service')
+const path = require('path')
+
 module.exports = defineConfig({
   outputDir: `dist/${process.env.MPX_CURRENT_TARGET_MODE}`,
   pluginOptions: {
@@ -13,6 +15,16 @@ module.exports = defineConfig({
             resolveDependencies.files.delete(packageJSONPath)
           }
         }
+        // modeRules: {
+        //   wx: {
+        //     include: [
+        //       path.resolve('node_modules/@vant')
+        //     ]
+        //   }
+        // }
+        // resolveMode: 'native',
+        // projectRoot: path.resolve(__dirname, '../src')
+        // miniNpmPackage: ['@vant/weapp']
       },
       loader: {},
       unocss: {}
@@ -28,6 +40,11 @@ module.exports = defineConfig({
         rules: [
           { test: /\.scss/, use: 'sass-loader' }
         ]
+      },
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, './src')
+        }
       }
     }
   }

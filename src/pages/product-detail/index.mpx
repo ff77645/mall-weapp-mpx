@@ -1,0 +1,218 @@
+<template>
+  <van-nav-bar
+  title="商品详情"
+  border="{{false}}"
+  left-arrow
+  bind:click-left="navBack"
+></van-nav-bar>
+<scroll-view
+  class="scrollable"
+  scroll-y
+>
+  <!-- 轮播 -->
+  <swiper indicator-dots class="" style="height: 280px;">
+    <swiper-item wx:for="{{swiperList}}" wx:key="index">
+      <image class="w-full h-full object-center object-cover" lazy-load="{{true}}" src="{{item.src}}" mode="aspectFill"/>
+    </swiper-item>
+  </swiper>
+
+  <!-- 商品信息 -->
+  <view class="m-4 py-3 px-2 bg-white rounded-md">
+    <view class="flex items-center">
+      <view class="flex text-red-600 items-center">
+        <text class="text-xs font-bold">￥</text>
+        <text class="text-lg font-bold">49</text>
+        <text class="text-xs"> 起</text>
+      </view>
+      <view class="text-gray-600 line-through text-xs ml-1">￥59起</view>
+    </view>
+    <view class="flex text-sm font-bold mt-2">
+      指定返回用户信息的语言，zh_CN 简体中文，zh_TW 繁体中文，en 英文
+    </view>
+    <view class="text-xs text-gray-600 mt-1">2024年新虾,本链接为3~5钱小龙虾</view>
+  </view>
+
+  <!-- 规格/地址/运费 -->
+  <view class="m-4 bg-white rounded-md overflow-hidden">
+    <!-- 规格 -->
+    <view class="flex flex-nowrap items-center p-3">
+      <view class="text-xs text-gray-600 mr-3">选择</view>
+      <view bind:tap="openGuideModel" class="flex-1 flex flex-nowrap justify-between items-center">
+        <view class="text-black text-xs font-bold">商品规格</view>
+        <van-icon name="arrow" size="14"/>
+      </view>
+    </view>
+    <!-- 地址 -->
+    <view class="flex flex-nowrap items-center p-3">
+      <view class="text-xs text-gray-600 mr-3">送至</view>
+      <view class="flex-1 flex flex-nowrap justify-between items-center">
+        <view class="text-black text-xs font-bold">北京 北京市 朝阳区</view>
+        <van-icon name="arrow" size="14"/>
+      </view>
+    </view>
+    <!-- 运费 -->
+    <view class="flex flex-nowrap items-center p-3">
+      <view class="text-xs text-gray-600 mr-3">运费</view>
+      <view class="flex-1 flex flex-nowrap justify-between items-center">
+        <view class="text-black text-xs font-bold">￥12起</view>
+      </view>
+    </view>
+    <!-- 提示 -->
+    <view class=" px-4 py-3 bg-slate-200 flex items-center">
+      <van-icon name="close" size="14" />
+      <text class="ml-1 text-xs text-gray-600">不支持7天无理由退货</text>
+    </view>
+  </view>
+
+  <!-- 商品详情 -->
+  <view class="m-4 rounded-md bg-white p-2">
+    <view class="flex items-stretch">
+      <view class="mr-2" style="background:linear-gradient(to top, rgb(255, 96, 52), rgb(238, 10, 36));width:2px;"></view>
+      <text class="text-xs font-bold">商品详情</text>
+    </view>
+    <view class="" style="height:300px;"></view>
+  </view>
+  <view class="h-1"></view>
+</scroll-view>
+<van-goods-action class="z-10">
+  <van-goods-action-icon icon="wap-home-o" text="首页" />
+  <van-goods-action-icon icon="cart-o" text="购物车" />
+  <van-goods-action-button
+    text="加入购物车"
+    type="warning"
+    bind:click="addToShopingCart"
+  />
+  <van-goods-action-button text="立即购买" bind:click="clickBuyNow" />
+</van-goods-action>
+<view style="height:50px;"></view>
+<view class="safe-area-inset-bottom"></view>
+
+<!-- 选择规格/数量 -->
+<van-popup
+  show="{{ showGuideModel }}"
+  position="bottom"
+  round
+  z-index="110"
+  custom-style="max-height: 60%"
+  bind:close="closeGuideModel"
+>
+  <!-- 规格 -->
+  <view class="px-4 py-3">
+    <view class="mt-3" wx:for="{{guides}}" wx:key="id" wx:for-item="guide">
+      <view class="text-sm font-bold">{{guide.title}}</view>
+      <view class="mt-2 px-2 flex flex-wrap gap-3">
+        <view
+          class="{{item.checked ? 'bg-red-600 text-white' : 'bg-slate-100 text-black'}} rounded-full font-bold px-4 py-1 text-xs"
+          wx:for="{{guide.children}}"
+          wx:key="id"
+          data-guide-id="{{guide.id}}"
+          data-item-id="{{item.id}}"
+          bind:tap="selectGuide"
+        >{{item.title}}</view>
+      </view>
+    </view>
+  </view>
+  <!-- 数量 -->
+  <view class="flex flex-nowrap justify-between p-4">
+    <view class="text-xs font-bold">数量</view>
+    <i-stepper value="{{1}}"></i-stepper>
+  </view>
+  <van-goods-action custom-class="px-2">
+    <van-goods-action-button
+      text="加入购物车"
+      type="warning"
+      bind:click="addToShopingCart"
+    />
+    <van-goods-action-button text="立即购买" bind:click="onClickButton" />
+  </van-goods-action>
+  <view style="height:50px;"></view>
+  <view class="safe-area-inset-bottom"></view>
+</van-popup>
+</template>
+
+<script>
+import { createPage } from '@mpxjs/core'
+const guides = [
+  {
+    title: '规格',
+    id: 'guide1',
+    children: [
+      {
+        title: '两款各一',
+        id: '1',
+        checked: false
+      },
+      {
+        title: '蒜蓉小龙虾2盒',
+        id: '2',
+        checked: false
+      },
+      {
+        title: '麻辣小龙虾2盒',
+        id: '3',
+        checked: false
+      }
+    ]
+  }
+]
+createPage({
+  data: {
+    guides,
+    swiperList: [
+      { src: 'http://pic.yupoo.com/isfy666/ca92284b/96330991.jpeg' },
+      { src: 'http://pic.yupoo.com/isfy666/d4964974/4a3260c0.jpeg' },
+      { src: 'http://pic.yupoo.com/isfy666/b7c9c6c4/bc4d4fcf.jpeg' }
+    ],
+    showGuideModel: false
+  },
+  openGuideModel() {
+    this.setData({ showGuideModel: true })
+  },
+  closeGuideModel() {
+    this.setData({ showGuideModel: false })
+  },
+  // 添加到购物车
+  addToShopingCart() {
+
+  },
+  // 立即购买
+  clickBuyNow() {
+    console.log('clickBuyNow')
+    wx.navigateTo({
+      url: '/pages/payment/index'
+    })
+  },
+  // 选择规格
+  selectGuide({ target }) {
+    const { guideId, itemId } = target.dataset
+    const { guides } = this.data
+    guides.forEach(guide => {
+      if (guide.id === guideId) {
+        guide.children.forEach(i => {
+          i.checked = i.id === itemId
+        })
+      }
+    })
+    this.setData({ guides })
+  },
+  // 选择规格确认
+  async selectGuideConfirm() {
+
+  },
+  navBack() {
+    wx.navigateBack()
+  }
+})
+</script>
+
+<script name="json">
+module.exports = {
+  "usingComponents": {
+    "van-goods-action": "@vant/weapp/goods-action/index",
+    "van-goods-action-icon": "@vant/weapp/goods-action-icon/index",
+    "van-goods-action-button": "@vant/weapp/goods-action-button/index",
+    "van-popup": "@vant/weapp/popup/index",
+    "i-stepper":"../../components/stepper/index"
+  }
+}
+</script>

@@ -1,10 +1,16 @@
 <script>
 import mpx, { createApp } from '@mpxjs/core'
 import apiProxy from '@mpxjs/api-proxy'
+import { createPinia } from '@mpxjs/pinia'
 
 mpx.use(apiProxy, { usePromise: true })
-
+const pinia = createPinia()
 createApp({
+  onAppInit() {
+    return {
+      pinia
+    }
+  },
   onLaunch() {
     //
   }
@@ -57,6 +63,20 @@ page {
       "./pages/mall",
       "./pages/cart",
       "./pages/mine",
+      "./pages/product-detail",
+      "./pages/payment",
+    ],
+    "subpackages":[
+      {
+        "root":"mine",
+        "pages":[
+          "./address",
+          "./address-add",
+          "./order",
+          "./coupon",
+          "./coupon-history",
+        ]
+      }
     ],
     "tabBar":{
       "custom":true,
@@ -78,7 +98,29 @@ page {
         "text":"我的"
       }
       ]
-    }
+    },
+    "window": {
+      "navigationBarTextStyle": "black",
+      "navigationStyle": "custom"
+    },
+    "renderer": "webview",
+    "rendererOptions": {
+      "skyline": {
+        "defaultDisplayBlock": true,
+        "defaultContentBox":true,
+        "disableABTest": true,
+        "sdkVersionBegin": "3.0.0",
+        "sdkVersionEnd": "15.255.255"
+      }
+    },
+    "componentFramework": "glass-easel",
+    "lazyCodeLoading": "requiredComponents",
+    "usingComponents":{
+      "van-nav-bar": "@vant/weapp/nav-bar/index",
+      "van-button": "@vant/weapp/button/index",
+      "van-icon": "@vant/weapp/icon/index",
+    },
+
   }
 </script>
 

@@ -1,0 +1,63 @@
+<template>
+  <van-nav-bar
+    title="地址管理"
+    left-arrow
+    bind:click-left="navBack"
+  />
+  <scroll-view
+    class="scrollable"
+    scroll-y
+  >
+
+    <van-swipe-cell wx:for="{{3}}" wx:key="*this" right-width="{{ 130 }}">
+      <view bind:tap="openAddressListPopup" class="px-4 bg-white flex flex-col gap-3">
+        <view class="text-xs text-gray-600 pt-4">四川省 成都市 双流区</view>
+        <view class="flex flex-nowrap justify-between">
+          <text class="text-sm font-bold">河畔新世界</text>
+        </view>
+        <view class="flex justify-between items-center pb-4 van-hairline--bottom">
+          <view class="text-xs text-gray-600">
+            <text>冯杨</text>
+            <text class="ml-2">1738****1723</text>
+          </view>
+        </view>
+      </view>
+      <view slot="right" class="flex h-full items-stretch">
+        <view class="bg-yellow-500 flex flex-col justify-center items-center" style="width:65px;">
+          <van-icon name="edit" size="16" color="#fff" />
+          <text class="text-xs text-white">编辑</text>
+        </view>
+        <view class="bg-red-500 flex flex-col justify-center items-center" style="width:65px;">
+          <van-icon name="delete-o" size="16" color="#fff" />
+          <text class="text-xs text-white">删除</text>
+        </view>
+      </view>
+    </van-swipe-cell>
+  </scroll-view>
+  <view class="px-4 py-1 bg-white">
+    <van-button bind:tap="addAddress" type="danger" block round>新增收货地址</van-button>
+  </view>
+</template>
+
+<script>
+import { createPage } from '@mpxjs/core'
+
+createPage({
+  addAddress() {
+    wx.navigateTo({
+      url: '/mine/address-add/index'
+    })
+  },
+  navBack() {
+    wx.navigateBack()
+  }
+})
+</script>
+
+<script name="json">
+module.exports = {
+  "usingComponents":{
+    "van-swipe-cell": "@vant/weapp/swipe-cell/index",
+  },
+}
+</script>

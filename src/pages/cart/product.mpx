@@ -1,0 +1,48 @@
+<template>
+  <view class="bg-white px-4 py-3 flex flex-nowrap gap-2 mt-3 rounded-md">
+    <!-- left -->
+    <view class="flex flex-none items-center">
+        <van-checkbox value="{{ false }}" icon-size="18" bind:change="selectProduct"></van-checkbox>
+    </view>
+    <!-- right -->
+      <view class="flex-1 flex flex-nowrap items-center">
+        <!-- 商品图片 -->
+        <image
+          src="http://pic.yupoo.com/isfy666/4832959c/e483921b.jpeg"
+          mode="aspectFill"
+          class="rounded-md flex-none mr-4"
+          style="width:65px;height:65px;"
+        />
+
+        <!-- 商品信息 -->
+        <view class="flex-1">
+          <!-- 名称 -->
+          <view class="font-bold text-xs">小龙虾阿打算打 阿达阿达阿斯达是的撒阿斯顿撒大神大神大萨达</view>
+          <!-- 规格 -->
+          <view class="text-xs text-gray-600 mt-1">两款各一</view>
+
+          <!-- 价格/数量 -->
+          <view class="flex flex-nowrap justify-between items-center mt-2">
+            <view class="text-red-700 font-bold">￥129</view>
+            <i-stepper value="{{1}}"></i-stepper>
+          </view>
+        </view>
+      </view>
+  </view>
+</template>
+<script>
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+
+})
+</script>
+<script name="json">
+  module.exports = {
+    "component": true,
+    "styleIsolation": "apply-shared",
+    "usingComponents":{
+      "i-stepper":"../../components/stepper/index"
+    }
+  }
+</script>

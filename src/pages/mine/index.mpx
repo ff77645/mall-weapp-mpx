@@ -26,7 +26,7 @@
     </view>
 
     <!-- 优惠券/积分/卡包 -->
-    <view
+    <!-- <view
       class="m-4 rounded-md py-4 bg-white flex flex-row flex-nowrap justify-around"
     >
       <view bind:tap="navToCoupon" class="text-center">
@@ -37,7 +37,7 @@
         <view class="font-bold text-black">658</view>
         <view class="text-xs text-slate-600">积分</view>
       </view>
-    </view>
+    </view> -->
 
     <!-- 订单 -->
     <view
@@ -77,19 +77,27 @@
         <van-icon slot="icon" name="chat" color="#2f3542" custom-style="margin-right:3px;" />
       </van-cell>
     </van-cell-group>
-
   </scroll-view>
-  <i-tabbar active="mine"></i-tabbar>
+  <view style="height:calc(50px + env(safe-area-inset-bottom));"></view>
 </template>
 
 <script>
 import { createPage } from '@mpxjs/core'
+import { customerApi } from '../../api/common.js'
+import { useBasicDataStore } from '@/store/base'
+import { storeToRefs } from '@mpxjs/pinia'
 
 createPage({
-  data: {
-    customer: null
+  setup() {
+    const basicData = storeToRefs(useBasicDataStore())
+    console.log({ basicData })
+    return {
+      ...basicData
+    }
   },
   async getCustomerInfo() {
+    console.log(this.data)
+
     if (this.data.openid) return
     const data = await wx.login()
     console.log({ data })
@@ -139,10 +147,30 @@ createPage({
     })
   },
   onLoad() {
-    this.getCustomerInfo()
+    this.setTabBar()
+    // this.getCustomerInfo()
   },
   navBack() {
     wx.navigateBack()
+  },
+  setTabBar() {
+    if (typeof this.getTabBar === 'function') {
+      this.getTabBar((tabBar) => {
+        tabBar.setData({
+          active: 'mine'
+        })
+      })
+    }
   }
 })
+</script>
+
+<script name="json">
+
+module.exports = {
+  usingComponents:{
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
+  }
+}
 </script>

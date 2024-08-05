@@ -1,15 +1,62 @@
 <template>
-  <view class="h-50px flex flex-nowrap px-4 bg-white items-center text-center">
-    <view class="flex-1">首页</view>
-    <view class="flex-1">商城</view>
-    <view class="flex-1">购物车</view>
-    <view class="flex-1">我的</view>
-  </view>
+  <van-tabbar
+    active="{{ active }}"
+    active-color="#ee0a24"
+    placeholder
+  >
+    <van-tabbar-item
+      wx:for="{{list}}"
+      wx:key="name"
+      name="{{item.name}}"
+      icon="{{item.icon}}"
+      url="{{item.path}}"
+      link-type="switchTab"
+    >{{item.title}}</van-tabbar-item>
+  </van-tabbar>
 </template>
+<script>
+import { createComponent } from '@mpxjs/core'
+const list = [
+  {
+    icon: 'wap-home-o',
+    title: '首页',
+    name: 'home',
+    path: '/pages/home/index'
+  },
+  {
+    icon: 'apps-o',
+    title: '分类',
+    name: 'mall',
+    path: '/pages/mall/index'
+  },
+  {
+    icon: 'cart-o',
+    title: '购物车',
+    name: 'cart',
+    path: '/pages/cart/index'
+  },
+  {
+    icon: 'manager-o',
+    title: '我的',
+    name: 'mine',
+    path: '/pages/mine/index'
+  }
+]
+createComponent({
+  data: {
+    list,
+    active: ''
+  }
+})
+</script>
 
-<style lang="scss">
-.tab-bar{
-  pointer-events: auto;
-  position: absolute;
+<script name="json">
+
+module.exports = {
+  usingComponents:{
+    "van-tabbar": "@vant/weapp/tabbar/index",
+    "van-tabbar-item": "@vant/weapp/tabbar-item/index",
+  }
 }
-</style>
+
+</script>

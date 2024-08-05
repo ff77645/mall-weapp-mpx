@@ -12,8 +12,7 @@
     class="scrollable"
     scroll-y
   >
-    <view style="height:1px;"></view>
-    <van-swipe-cell wx:for="{{3}}" wx:key="*this" right-width="{{ 65 }}">
+    <van-swipe-cell right-width="{{ 65 }}">
       <product></product>
       <view slot="right" class="h-full bg-red-500 flex flex-col justify-center items-center" style="width:65px;">
         <van-icon name="delete-o" size="16" color="#fff" />
@@ -36,6 +35,7 @@
       <van-button color="linear-gradient(to right, rgb(255, 96, 52), rgb(238, 10, 36))" size="small" round custom-style="width:100px;height:35px;">去结算</van-button>
     </view>
   </view>
+  <view style="height:calc(50px + env(safe-area-inset-bottom));"></view>
 </template>
 
 <script>
@@ -53,6 +53,28 @@ createPage({
   },
   changeCheckedAll(e) {
     console.log({ e })
+  },
+  setTabBar() {
+    if (typeof this.getTabBar === 'function') {
+      this.getTabBar((tabBar) => {
+        tabBar.setData({
+          active: 'cart'
+        })
+      })
+    }
+  },
+  onLoad() {
+    this.setTabBar()
   }
 })
+</script>
+
+<script name="json">
+  module.exports = {
+    usingComponents:{
+      "van-swipe-cell": "@vant/weapp/swipe-cell/index",
+      "van-checkbox": "@vant/weapp/checkbox/index",
+      "product":"./product"
+    }
+  }
 </script>

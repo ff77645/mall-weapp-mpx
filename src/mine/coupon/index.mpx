@@ -1,0 +1,50 @@
+<template>
+  <van-nav-bar
+    title="我的优惠券"
+    left-arrow
+    bind:click-left="navBack"
+  />
+  <scroll-view
+    class="scrollable"
+    scroll-y
+  >
+  </scroll-view>
+  <view bind:tap="navToOldCoupon" class="flex justify-center py-1">
+    <!-- <van-icon name="clock-o" color="#000" size="13px" /> -->
+    <text class="text-xs text-red-600 underline">历史优惠券</text>
+  </view>
+  <view class="safe-area-inset-bottom"></view>
+</template>
+
+<script>
+import { createPage } from '@mpxjs/core'
+
+const tabList = [
+  {
+    title: '堂食券'
+  },
+  {
+    title: '商城券'
+  },
+  {
+    title: '外卖券'
+  },
+  {
+    title: '开卡券'
+  }
+]
+createPage({
+  data: {
+    tabList,
+    tabActive: 0
+  },
+  navToOldCoupon() {
+    wx.navigateTo({
+      url: '/mine/coupon-history/index'
+    })
+  },
+  navBack() {
+    wx.navigateBack()
+  }
+})
+</script>

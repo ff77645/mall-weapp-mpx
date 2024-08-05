@@ -81,6 +81,7 @@
       </view>
     </scroll-view>
   </view>
+  <view style="height:calc(50px + env(safe-area-inset-bottom));"></view>
 </template>
 
 <script>
@@ -143,9 +144,8 @@ createPage({
     if (index === this.data.activeIndex) return
     this.setData({ activeIndex: index })
   },
-
   // 初始化分类与商品数据
-  async initData() {
+  async initDataFn() {
     // const [
     //   productCategory,
     //   productRes,
@@ -218,9 +218,19 @@ createPage({
       this.getCategoryTitleTop()
     })
   },
-
+  setTabBar() {
+    if (typeof this.getTabBar === 'function') {
+      this.getTabBar((tabBar) => {
+        tabBar.setData({
+          active: 'mall'
+        })
+      })
+    }
+  },
   onLoad() {
-    this.initData()
+    this.setTabBar()
+    this.initDataFn()
+
     setTimeout(() => {
       // this.initAnimateOrder()
       this.getScrollListTop()

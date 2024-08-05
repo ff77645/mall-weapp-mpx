@@ -1,0 +1,127 @@
+<template>
+  <van-nav-bar
+  title="新增收货地址"
+  left-arrow
+  bind:click-left="navBack"
+/>
+<scroll-view
+  class="scrollable"
+  scroll-y
+>
+  <view class="px-4 bg-white">
+    <view class="py-4 flex items-center text-xs">
+      <view class="text-xs w-20">收货人姓名</view>
+      <input class="flex-1" type="text" placeholder="请输入姓名"/>
+    </view>
+    <view class="py-4 flex items-center text-xs">
+      <view class="text-xs w-20">联系电话</view>
+      <input class="flex-1" type="text" placeholder="请输入电话"/>
+    </view>
+    <view class="py-4 flex items-center text-xs">
+      <view class="text-xs w-20">所在地区</view>
+      <view bind:tap="toggleLocationPopup" class="flex items-center justify-between flex-1">
+        <input value="{{areaString}}" type="text" disabled placeholder="省市区县乡镇等"/>
+        <van-icon name="arrow" size="14" color="#666" />
+      </view>
+    </view>
+    <view class="py-4 flex items-start text-xs">
+      <view class="text-xs w-20">详情地址</view>
+      <textarea style="height:80px;" class="flex-1" type="text" placeholder="填写详细地址,不少于5个字"/>
+    </view>
+  </view>
+  <view class="px-4 py-3 flex items-center justify-between bg-white mt-3">
+    <view class="text-xs">设置默认地址</view>
+    <van-switch bind:change="changeIsDefault" checked="{{ isDefault }}" size="20" active-color="#ee0a24" />
+  </view>
+
+</scroll-view>
+<view class="px-4 py-1 bg-white">
+  <van-button type="danger" block round disabled="{{isDisabled}}">保存地址</van-button>
+</view>
+
+<!-- 区域选择 -->
+<van-popup
+  show="{{ showLocationPopup }}"
+  position="bottom"
+  round
+  z-index="110"
+  custom-style="max-height: 60%"
+  bind:close="toggleLocationPopup"
+>
+  <view class="flex items-center justify-between p-4 van-hairline--bottom">
+    <view></view>
+    <view class="font-bold">所在区域</view>
+    <view
+      bind:tap="toggleLocationPopup"
+      style="height:26px;width:26px;" class="rounded-full bg-slate-100 flex justify-center items-center"
+    >
+      <van-icon name="cross" size="16" color="#666" />
+    </view>
+  </view>
+  <van-area
+    value="{{areaCode}}"
+    area-list="{{ areaList }}"
+    show-toolbar="{{false}}"
+    bind:change="selectAreaChange"
+  />
+  <view class="px-4 py-2 van-hairline--top bg-white">
+    <van-button bind:click="selectAreaConfirm" type="danger" round block>确认</van-button>
+  </view>
+</van-popup>
+</template>
+
+<script>
+import { createPage } from '@mpxjs/core'
+import { areaList } from '@vant/area-data'
+
+createPage({
+  data: {
+    isDefault: true,
+    isDisabled: true,
+    showLocationPopup: false,
+    areaList,
+    areaCode: '',
+    areaString: ''
+  },
+  toggleLocationPopup() {
+    this.setData({
+      showLocationPopup: !this.data.showLocationPopup
+    })
+  },
+  changeIsDefault() {
+    console.log(1222)
+    this.setData({
+      isDefault: !this.data.isDefault
+    })
+  },
+  // 选择区域
+  _areaCode: '110101',
+  _areaString: '北京市 北京市 东城区',
+  selectAreaChange(e) {
+    const values = e.detail.values
+    console.log(values)
+    this._areaCode = values[2].code
+    this._areaString = values.map(i => i.name).join(' ')
+  },
+  selectAreaConfirm() {
+    this.setData({
+      areaCode: this._areaCode,
+      areaString: this._areaString,
+      showLocationPopup: false
+    })
+  },
+  navBack() {
+    wx.navigateBack()
+  }
+})
+</script>
+
+<script name="json">
+module.exports = {
+  usingComponents:{
+    "van-area": "@vant/weapp/area/index",
+    "van-switch": "@vant/weapp/switch/index",
+    "van-popup": "@vant/weapp/popup/index",
+  }
+}
+</script>
