@@ -17,7 +17,7 @@
         "showShadowRootInWxmlPanel": false,
         "packNpmRelationList": [],
         "ignoreUploadUnusedFiles": true,
-        "swc": true
+        "swc": false
     },
     "description": "A mpx project",
     "condition": {},

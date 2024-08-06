@@ -20,16 +20,18 @@
   <view class="m-4 py-3 px-2 bg-white rounded-md">
     <view class="flex items-center">
       <view class="flex text-red-600 items-center">
-        <text class="text-xs font-bold">￥</text>
-        <text class="text-lg font-bold">49</text>
-        <text class="text-xs"> 起</text>
+        <text class="text-xs font-bold pt-2px">￥</text>
+        <text class="text-lg font-bold">{{productInfo.retail_price / 100}}</text>
+        <text class="text-xs pt-2px ml-2px"> 起</text>
       </view>
       <view class="text-gray-600 line-through text-xs ml-1">￥59起</view>
     </view>
     <view class="flex text-sm font-bold mt-2">
-      指定返回用户信息的语言，zh_CN 简体中文，zh_TW 繁体中文，en 英文
+      {{productInfo.title}}
     </view>
-    <view class="text-xs text-gray-600 mt-1">2024年新虾,本链接为3~5钱小龙虾</view>
+    <view class="text-xs text-gray-600 mt-1">
+      {{productInfo.sub_title}}
+    </view>
   </view>
 
   <!-- 规格/地址/运费 -->
@@ -54,7 +56,8 @@
     <view class="flex flex-nowrap items-center p-3">
       <view class="text-xs text-gray-600 mr-3">运费</view>
       <view class="flex-1 flex flex-nowrap justify-between items-center">
-        <view class="text-black text-xs font-bold">￥12起</view>
+        <view wx:if="{{productInfo.freight}}" class="text-black text-xs font-bold">￥{{productInfo.freight / 100}}起</view>
+        <view wx:else class="text-black text-xs font-bold">免运费</view>
       </view>
     </view>
     <!-- 提示 -->
@@ -105,9 +108,7 @@
           class="{{item.checked ? 'bg-red-600 text-white' : 'bg-slate-100 text-black'}} rounded-full font-bold px-4 py-1 text-xs"
           wx:for="{{guide.children}}"
           wx:key="id"
-          data-guide-id="{{guide.id}}"
-          data-item-id="{{item.id}}"
-          bind:tap="selectGuide"
+          bind:tap="selectGuide(guide.id,item.id)"
         >{{item.title}}</view>
       </view>
     </view>
@@ -131,77 +132,100 @@
 </template>
 
 <script>
-import { createPage } from '@mpxjs/core'
-const guides = [
-  {
-    title: '规格',
-    id: 'guide1',
-    children: [
-      {
-        title: '两款各一',
-        id: '1',
-        checked: false
-      },
-      {
-        title: '蒜蓉小龙虾2盒',
-        id: '2',
-        checked: false
-      },
-      {
-        title: '麻辣小龙虾2盒',
-        id: '3',
-        checked: false
-      }
-    ]
-  }
-]
+import { createPage, onLoad, ref } from '@mpxjs/core'
+import {
+  productApi,
+  productGuideApi
+  // productCategoryApi
+} from '@/api/product'
+
 createPage({
-  data: {
-    guides,
-    swiperList: [
+  setup() {
+    const productInfo = ref({})
+    const guides = ref([])
+    const showGuideModel = ref(false)
+    const swiperList = [
       { src: 'http://pic.yupoo.com/isfy666/ca92284b/96330991.jpeg' },
       { src: 'http://pic.yupoo.com/isfy666/d4964974/4a3260c0.jpeg' },
       { src: 'http://pic.yupoo.com/isfy666/b7c9c6c4/bc4d4fcf.jpeg' }
-    ],
-    showGuideModel: false
-  },
-  openGuideModel() {
-    this.setData({ showGuideModel: true })
-  },
-  closeGuideModel() {
-    this.setData({ showGuideModel: false })
-  },
-  // 添加到购物车
-  addToShopingCart() {
-
-  },
-  // 立即购买
-  clickBuyNow() {
-    console.log('clickBuyNow')
-    wx.navigateTo({
-      url: '/pages/payment/index'
-    })
-  },
-  // 选择规格
-  selectGuide({ target }) {
-    const { guideId, itemId } = target.dataset
-    const { guides } = this.data
-    guides.forEach(guide => {
-      if (guide.id === guideId) {
-        guide.children.forEach(i => {
-          i.checked = i.id === itemId
+    ]
+    const findGuides = async (id) => {
+      const res = await productGuideApi.findAll({ id })
+      res.forEach(guide => {
+        guide.children.forEach((item, index) => {
+          item.checked = index === 0
         })
-      }
-    })
-    this.setData({ guides })
-  },
-  // 选择规格确认
-  async selectGuideConfirm() {
+      })
+      console.log({ res })
+      guides.value = res
+    }
+    const initData = async (id) => {
+      const res = await productApi.findOne(id)
+      console.log({ res })
+      productInfo.value = res
+    }
 
-  },
-  navBack() {
-    wx.navigateBack()
+    onLoad((opts) => {
+      console.log({ opts })
+      initData(opts.id)
+      findGuides(opts.id)
+    })
+
+    // 选择规格
+    const selectGuide = (guideId, itemId) => {
+      guides.value.forEach(guide => {
+        if (guide.id === guideId) {
+          guide.children.forEach(i => {
+            i.checked = i.id === itemId
+          })
+        }
+      })
+    }
+
+    const openGuideModel = () => {
+      showGuideModel.value = true
+    }
+
+    const closeGuideModel = () => {
+      showGuideModel.value = false
+    }
+
+    const addToShopingCart = () => {
+
+    }
+
+    // 立即购买
+    const clickBuyNow = () => {
+      console.log('clickBuyNow')
+      wx.navigateTo({
+        url: '/pages/payment/index'
+      })
+    }
+
+    // 选择规格确认
+    const selectGuideConfirm = () => {
+
+    }
+
+    const navBack = () => {
+      wx.navigateBack()
+    }
+
+    return {
+      productInfo,
+      guides,
+      selectGuide,
+      showGuideModel,
+      openGuideModel,
+      closeGuideModel,
+      addToShopingCart,
+      clickBuyNow,
+      selectGuideConfirm,
+      navBack,
+      swiperList
+    }
   }
+
 })
 </script>
 

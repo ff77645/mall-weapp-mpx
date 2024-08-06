@@ -2,41 +2,41 @@
   <van-nav-bar
     title="商城"
   />
-  <view class="flex-1 bg-slate-100 flex flex-nowrap overflow-hidden">
+  <view class="flex-1 bg-slate-100 flex flex-col overflow-hidden">
     <!-- 商品分类 -->
-    <scroll-view
-      class="h-full w-24 flex-none"
-      scroll-y
+    <!-- <scroll-view
+      class="flex-none"
+      scroll-x
       scroll-with-animation
       scroll-into-view="a{{activeIndex}}"
     >
-      <view
-        wx:for="{{categoryList}}"
-        wx:key="id"
-        data-id="{{item.id}}"
-        data-index="{{index}}"
-        class="flex flex-nowrap border-l-4 border-solid {{ activeIndex === index ? 'bg-white border-red-500' : 'border-slate-50'}}"
-        bind:tap="changeCategory"
-        id="a{{index}}"
-      >
+      <view class="flex flex-nowrap p-2 gap-2">
         <view
+          wx:for="{{categoryList}}"
+          wx:key="id"
           data-id="{{item.id}}"
           data-index="{{index}}"
-          class="py-3 text-center flex-1"
-        >{{item.title}}</view>
-        <view wx:if="{{item.number}}" class="self-start h-4 px-1 flex items-center text-xs rounded-full text-white bg-red-600">{{item.number}}</view>
+          class="flex flex-nowrap border-l-4 border-solid rounded-full {{ activeIndex === index ? 'bg-white border-red-500' : 'border-slate-50'}}"
+          bind:tap="changeCategory"
+          id="a{{index}}"
+        >
+          <view
+            data-id="{{item.id}}"
+            data-index="{{index}}"
+            class="py-3 text-center flex-1 text-xs"
+          >{{item.title}}</view>
+        </view>
       </view>
-    </scroll-view>
+    </scroll-view> -->
 
     <!-- 商品列表 -->
     <scroll-view
-      class="h-full bg-white flex-1 group-list overflow-hidden"
+      class="flex-1 group-list overflow-hidden"
       scroll-y
       scroll-with-animation
       scroll-into-view="{{group_id}}"
-      bind:scroll="goodsListScroll"
     >
-      <view
+      <!-- <view
         class="group-item"
         wx:for="{{groupList}}"
         wx:key="id"
@@ -45,47 +45,53 @@
         data-id="{{group.id}}"
         data-index="{{index}}"
         data-title="{{group.title}}"
-      >
-        <view class="px-4 group">
+      > -->
+        <!-- <view class="px-2 group"> -->
           <!-- 分类标题 -->
-          <view
-            class="category-title text-sm text-gray-500 sticky top-0 bg-white" style="z-index: 100;"
+          <!-- <view
+            class="category-title text-sm text-gray-500 sticky top-0 bg-slate-100 py-2" style="z-index: 100;"
             data-title="{{group.title}}"
             data-id="{{group.id}}"
-          >{{group.title}}</view>
-          <view
-            wx:for="{{group.children}}"
-            wx:for-index="idx"
-            wx:key="idx"
-            class="py-3 flex flex-nowrap items-center overflow-hidden"
-            bind:tap="navToProductDetail"
-          >
-            <!-- 商品图片 -->
-            <image
-              src="http://pic.yupoo.com/isfy666/94184a1f/945dfe1e.jpeg"
-              mode="aspectFill"
-              style="width:80px;height:80px;"
-              class="mr-3 rounded-md flex-none"
-              lazy-load
-            />
-            <view class="flex-1 flex flex-col justify-between overflow-hidden self-stretch">
-              <view>
-                <view class=" text-gray-900 van-multi-ellipsis--l2">{{item.title}}</view>
-                <view class="text-gray-600 text-sm van-ellipsis">{{item.describe}}</view>
-                <view class="text-gray-500" style="font-size:10px;">已购1万</view>
+          >{{group.title}}</view> -->
+          <view class="grid grid-cols-2 gap-3 p-2">
+            <view
+              wx:for="{{productList}}"
+              wx:key="id"
+              class="bg-white rounded-md overflow-hidden flex-col flex"
+              bind:tap="navToProductDetail(item.id)"
+            >
+              <!-- 商品图片 -->
+              <image
+                src="http://pic.yupoo.com/isfy666/94184a1f/945dfe1e.jpeg"
+                mode="aspectFill"
+                class="w-full flex-none"
+                lazy-load
+              />
+              <view class="p-2 flex-1 flex flex-col justify-between overflow-hidden self-stretch">
+                <view>
+                  <view class=" text-gray-900 van-multi-ellipsis--l2">{{item.title}}</view>
+                  <view class="text-gray-600 text-xs van-multi-ellipsis--l2">{{item.sub_title}}</view>
+                </view>
+                <view class="flex justify-between items-center">
+                  <view class="text-gray-500" style="font-size:10px;">已购1万</view>
+                  <view class="text-red-500 font-bold text-sm">￥{{item.retail_price / 100}}</view>
+                </view>
               </view>
-              <view class="text-red-500 font-bold text-sm">￥{{item.unit_price / 100}}</view>
             </view>
           </view>
-        </view>
-      </view>
+        <!-- </view> -->
+      <!-- </view> -->
     </scroll-view>
   </view>
   <view style="height:calc(50px + env(safe-area-inset-bottom));"></view>
 </template>
 
 <script>
-import { createPage } from '@mpxjs/core'
+import { createPage, ref, onLoad, getCurrentInstance } from '@mpxjs/core'
+import {
+  productApi
+  // productCategoryApi
+} from '@/api/product'
 
 createPage({
   data: {
@@ -101,8 +107,35 @@ createPage({
     showGuideModel: false,
     scrollTop: 0
   },
-  // 单据
-  _draftBill: {},
+  setup() {
+    const productList = ref([])
+    // 初始化页面数据
+    const initData = async () => {
+      const res = await productApi.findAll({ page: 1, limit: 100 })
+      console.log({ res })
+      productList.value = res.data
+    }
+
+    const setTabbar = () => {
+      const { target } = getCurrentInstance()
+      if (target && typeof target.getTabBar === 'function') {
+        target.getTabBar((tabBar) => {
+          tabBar.setData({
+            active: 'mall'
+          })
+        })
+      }
+    }
+
+    onLoad(() => {
+      initData()
+      setTabbar()
+    })
+
+    return {
+      productList
+    }
+  },
   // 节流时间
   throttleTime: 600,
   // 切换分类
@@ -228,18 +261,18 @@ createPage({
     }
   },
   onLoad() {
-    this.setTabBar()
-    this.initDataFn()
+    // this.setTabBar()
+    // this.initDataFn()
 
-    setTimeout(() => {
-      // this.initAnimateOrder()
-      this.getScrollListTop()
-      // this.getCategoryTitleTop()
-    }, 300)
+    // setTimeout(() => {
+    // this.initAnimateOrder()
+    // this.getScrollListTop()
+    // this.getCategoryTitleTop()
+    // }, 300)
   },
-  navToProductDetail() {
+  navToProductDetail(id) {
     wx.navigateTo({
-      url: '/pages/product-detail/index'
+      url: '/pages/product-detail/index?id=' + id
     })
   },
   navBack() {
