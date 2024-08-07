@@ -73,7 +73,15 @@
       <view class="mr-2" style="background:linear-gradient(to top, rgb(255, 96, 52), rgb(238, 10, 36));width:2px;"></view>
       <text class="text-xs font-bold">商品详情</text>
     </view>
-    <view class="" style="height:300px;"></view>
+    <view class="mt-2" style="min-height:300px;">
+      <editor
+        read-only
+        style="height:auto;"
+        class=""
+        wx:ref="editor"
+        bind:ready="bindready"
+      ></editor>
+    </view>
   </view>
   <view class="h-1"></view>
 </scroll-view>
@@ -132,12 +140,13 @@
 </template>
 
 <script>
-import { createPage, onLoad, ref } from '@mpxjs/core'
+import { createPage, onLoad, ref, getCurrentInstance } from '@mpxjs/core'
 import {
   productApi,
   productGuideApi
   // productCategoryApi
 } from '@/api/product'
+import { deltaData } from './delta-data'
 
 createPage({
   setup() {
@@ -164,9 +173,10 @@ createPage({
       console.log({ res })
       productInfo.value = res
     }
+    const instance = getCurrentInstance()
+    console.log({ instance })
 
     onLoad((opts) => {
-      console.log({ opts })
       initData(opts.id)
       findGuides(opts.id)
     })
@@ -191,7 +201,29 @@ createPage({
     }
 
     const addToShopingCart = () => {
-
+      const editor = instance.target.$refs.editor
+      // const node = editor.node()
+      editor.context(({ context }) => {
+        console.log({ context })
+        deltaData.forEach(item => {
+          item.attributes = item.attributes || {}
+          item.attributes.backgroundColor = item.attributes.background
+          item.attributes.wordBreak = 'break-all'
+          item.attributes.wordWrap = 'break-word'
+          item.attributes.whiteSpace = 'normal'
+          item.attributes.overflowWrap = 'break-word'
+        })
+        context.setContents({
+          delta: deltaData,
+          success(success) {
+            console.log({ success })
+          },
+          fail(fail) {
+            console.log({ fail })
+          }
+        })
+      }).exec()
+      // console.log({ editor })
     }
 
     // 立即购买
@@ -211,6 +243,10 @@ createPage({
       wx.navigateBack()
     }
 
+    const bindready = (e) => {
+      console.log({ e })
+    }
+
     return {
       productInfo,
       guides,
@@ -222,7 +258,8 @@ createPage({
       clickBuyNow,
       selectGuideConfirm,
       navBack,
-      swiperList
+      swiperList,
+      bindready
     }
   }
 
