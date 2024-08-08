@@ -37,7 +37,7 @@
   <!-- 规格/地址/运费 -->
   <view class="m-4 bg-white rounded-md overflow-hidden">
     <!-- 规格 -->
-    <view class="flex flex-nowrap items-center p-3">
+    <view wx:if="{{guides.length}}" class="flex flex-nowrap items-center p-3">
       <view class="text-xs text-gray-600 mr-3">选择</view>
       <view bind:tap="openGuideModel" class="flex-1 flex flex-nowrap justify-between items-center">
         <view class="text-black text-xs font-bold">商品规格</view>
@@ -61,10 +61,10 @@
       </view>
     </view>
     <!-- 提示 -->
-    <view class=" px-4 py-3 bg-slate-200 flex items-center">
+    <!-- <view class=" px-4 py-3 bg-slate-200 flex items-center">
       <van-icon name="close" size="14" />
       <text class="ml-1 text-xs text-gray-600">不支持7天无理由退货</text>
-    </view>
+    </view> -->
   </view>
 
   <!-- 商品详情 -->
@@ -146,36 +146,70 @@ import {
   productGuideApi
   // productCategoryApi
 } from '@/api/product'
-import { deltaData } from './delta-data'
+import { ASSET_BASE_URL } from '@/config/index'
 
 createPage({
   setup() {
     const productInfo = ref({})
     const guides = ref([])
     const showGuideModel = ref(false)
-    const swiperList = [
-      { src: 'http://pic.yupoo.com/isfy666/ca92284b/96330991.jpeg' },
-      { src: 'http://pic.yupoo.com/isfy666/d4964974/4a3260c0.jpeg' },
-      { src: 'http://pic.yupoo.com/isfy666/b7c9c6c4/bc4d4fcf.jpeg' }
-    ]
+    const swiperList = ref([])
+
+    // 查询商品规格
     const findGuides = async (id) => {
       const res = await productGuideApi.findAll({ id })
+      console.log('findGuides', res)
       res.forEach(guide => {
         guide.children.forEach((item, index) => {
           item.checked = index === 0
         })
       })
-      console.log({ res })
       guides.value = res
     }
+    const instance = getCurrentInstance()
+
+    // 设置商品详情
+    const setEditorContent = delta => {
+      const editor = instance.target.$refs.editor
+      editor.context(({ context }) => {
+        console.log({ context })
+        delta.forEach(item => {
+          item.attributes = item.attributes || {}
+          item.attributes.backgroundColor = item.attributes.background
+          item.attributes.wordBreak = 'break-all'
+          item.attributes.wordWrap = 'break-word'
+          item.attributes.whiteSpace = 'normal'
+          item.attributes.overflowWrap = 'break-word'
+          if (typeof item.insert === 'object' && item.insert.image) {
+            item.attributes.width = '100%'
+          }
+        })
+        context.setContents({
+          delta,
+          success(success) {
+            console.log({ success })
+          },
+          fail(fail) {
+            console.log({ fail })
+          }
+        })
+      }).exec()
+    }
+
+    // 初始化数据
     const initData = async (id) => {
       const res = await productApi.findOne(id)
-      console.log({ res })
+      const head_imgs = res.head_imgs ? JSON.parse(res.head_imgs) : []
+      head_imgs.forEach(i => {
+        i.src = ASSET_BASE_URL + i.url
+      })
+      swiperList.value = head_imgs
       productInfo.value = res
+      const detail = res.detail ? JSON.parse(res.detail) : []
+      if (detail.length) {
+        setEditorContent(detail)
+      }
     }
-    const instance = getCurrentInstance()
-    console.log({ instance })
-
     onLoad((opts) => {
       initData(opts.id)
       findGuides(opts.id)
@@ -201,28 +235,8 @@ createPage({
     }
 
     const addToShopingCart = () => {
-      const editor = instance.target.$refs.editor
       // const node = editor.node()
-      editor.context(({ context }) => {
-        console.log({ context })
-        deltaData.forEach(item => {
-          item.attributes = item.attributes || {}
-          item.attributes.backgroundColor = item.attributes.background
-          item.attributes.wordBreak = 'break-all'
-          item.attributes.wordWrap = 'break-word'
-          item.attributes.whiteSpace = 'normal'
-          item.attributes.overflowWrap = 'break-word'
-        })
-        context.setContents({
-          delta: deltaData,
-          success(success) {
-            console.log({ success })
-          },
-          fail(fail) {
-            console.log({ fail })
-          }
-        })
-      }).exec()
+
       // console.log({ editor })
     }
 

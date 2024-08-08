@@ -62,7 +62,7 @@
             >
               <!-- 商品图片 -->
               <image
-                src="http://pic.yupoo.com/isfy666/94184a1f/945dfe1e.jpeg"
+                src="{{ASSET_BASE_URL + item.url}}"
                 mode="aspectFill"
                 class="w-full flex-none"
                 lazy-load
@@ -92,6 +92,7 @@ import {
   productApi
   // productCategoryApi
 } from '@/api/product'
+import { ASSET_BASE_URL } from '@/config/index'
 
 createPage({
   data: {
@@ -113,6 +114,10 @@ createPage({
     const initData = async () => {
       const res = await productApi.findAll({ page: 1, limit: 100 })
       console.log({ res })
+      res.data.forEach(item => {
+        const images = item.head_imgs ? JSON.parse(item.head_imgs) : []
+        item.url = images.length ? images[0].url : ''
+      })
       productList.value = res.data
     }
 
@@ -133,7 +138,8 @@ createPage({
     })
 
     return {
-      productList
+      productList,
+      ASSET_BASE_URL
     }
   },
   // 节流时间
