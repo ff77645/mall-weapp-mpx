@@ -1,27 +1,35 @@
 <template>
   <van-nav-bar
-  title="商品详情"
-  border="{{false}}"
-  left-arrow
-  bind:click-left="navBack"
-></van-nav-bar>
-<scroll-view
-  class="scrollable"
-  scroll-y
->
+    border="{{false}}"
+    left-arrow
+    bind:click-left="navBack"
+    title-class="nav-bar-title"
+  >
+    <view
+      slot="title"
+      class="custome-nav"
+      style="padding-right:{{menuButtonLeft}}px;"
+    >
+      商品详情
+    </view>
+  </van-nav-bar>
+  <scroll-view
+    class="scrollable"
+    scroll-y
+  >
   <!-- 轮播 -->
-  <swiper indicator-dots class="" style="height: 280px;">
+  <swiper indicator-dots class="" style="height: 750rpx;">
     <swiper-item wx:for="{{swiperList}}" wx:key="index">
       <image class="w-full h-full object-center object-cover" lazy-load="{{true}}" src="{{item.src}}" mode="aspectFill"/>
     </swiper-item>
   </swiper>
 
   <!-- 商品信息 -->
-  <view class="m-4 py-3 px-2 bg-white rounded-md">
+  <view class="m-3 py-3 px-2 bg-white rounded-md">
     <view class="flex items-center">
       <view class="flex text-red-600 items-center">
         <text class="text-xs font-bold pt-2px">￥</text>
-        <text class="text-lg font-bold">{{productInfo.retail_price / 100}}</text>
+        <text class="text-lg font-bold">{{productPrice / 100}}</text>
         <text class="text-xs pt-2px ml-2px"> 起</text>
       </view>
       <view class="text-gray-600 line-through text-xs ml-1">￥59起</view>
@@ -35,7 +43,7 @@
   </view>
 
   <!-- 规格/地址/运费 -->
-  <view class="m-4 bg-white rounded-md overflow-hidden">
+  <view class="m-3 bg-white rounded-md overflow-hidden">
     <!-- 规格 -->
     <view wx:if="{{guides.length}}" class="flex flex-nowrap items-center p-3">
       <view class="text-xs text-gray-600 mr-3">选择</view>
@@ -68,9 +76,9 @@
   </view>
 
   <!-- 商品详情 -->
-  <view class="m-4 rounded-md bg-white p-2">
-    <view class="flex items-stretch">
-      <view class="mr-2" style="background:linear-gradient(to top, rgb(255, 96, 52), rgb(238, 10, 36));width:2px;"></view>
+  <view class="m-3 rounded-md bg-white p-2">
+    <view class="flex items-center">
+      <view class="mr-2" style="background:linear-gradient(to top, rgb(255, 96, 52), rgb(238, 10, 36));width:2px;height:70%;"></view>
       <text class="text-xs font-bold">商品详情</text>
     </view>
     <view class="mt-2" style="min-height:300px;">
@@ -86,8 +94,8 @@
   <view class="h-1"></view>
 </scroll-view>
 <van-goods-action class="z-10">
-  <van-goods-action-icon icon="wap-home-o" text="首页" />
-  <van-goods-action-icon icon="cart-o" text="购物车" />
+  <van-goods-action-icon bind:tap="navToHome" icon="wap-home-o" text="首页" />
+  <van-goods-action-icon bind:tap="navToShopingCart" icon="cart-o" text="购物车" />
   <van-goods-action-button
     text="加入购物车"
     type="warning"
@@ -140,13 +148,15 @@
 </template>
 
 <script>
-import { createPage, onLoad, ref, getCurrentInstance } from '@mpxjs/core'
+import mpx, { createPage, onLoad, ref, getCurrentInstance } from '@mpxjs/core'
 import {
   productApi,
   productGuideApi
-  // productCategoryApi
+  // mallCartApi
 } from '@/api/product'
+import { mallCartApi } from '@/api/mall'
 import { ASSET_BASE_URL } from '@/config/index'
+import { useBasicDataStore } from '@/store/base'
 
 createPage({
   setup() {
@@ -154,6 +164,31 @@ createPage({
     const guides = ref([])
     const showGuideModel = ref(false)
     const swiperList = ref([])
+    const productPrice = ref(0)
+    const basicData = useBasicDataStore()
+    const instance = getCurrentInstance()
+    const menuButtonLeft = ref(0)
+
+    const menuRect = wx.getMenuButtonBoundingClientRect()
+    const windowInfo = wx.getWindowInfo()
+    console.log({ menuRect })
+    menuButtonLeft.value = windowInfo.windowWidth - menuRect.left
+
+    const addToShopingCart = async () => {
+      if (!basicData.customer.id) {
+        await basicData.getCustomerInfo()
+      }
+      const data = {
+        customer_id: basicData.customer.id,
+        product_id: productInfo.value.id,
+        number: 1
+      }
+      await mallCartApi.create(data)
+      mpx.showToast({
+        title: '添加成功',
+        icon: 'success'
+      })
+    }
 
     // 查询商品规格
     const findGuides = async (id) => {
@@ -166,7 +201,6 @@ createPage({
       })
       guides.value = res
     }
-    const instance = getCurrentInstance()
 
     // 设置商品详情
     const setEditorContent = delta => {
@@ -205,11 +239,13 @@ createPage({
       })
       swiperList.value = head_imgs
       productInfo.value = res
+      productPrice.value = res.retail_price
       const detail = res.detail ? JSON.parse(res.detail) : []
       if (detail.length) {
         setEditorContent(detail)
       }
     }
+
     onLoad((opts) => {
       initData(opts.id)
       findGuides(opts.id)
@@ -234,17 +270,14 @@ createPage({
       showGuideModel.value = false
     }
 
-    const addToShopingCart = () => {
-      // const node = editor.node()
-
-      // console.log({ editor })
-    }
-
     // 立即购买
     const clickBuyNow = () => {
       console.log('clickBuyNow')
       wx.navigateTo({
-        url: '/pages/payment/index'
+        url: '/pages/payment/index',
+        success(e) {
+          e.eventChannel.emit('data')
+        }
       })
     }
 
@@ -261,7 +294,21 @@ createPage({
       console.log({ e })
     }
 
+    const navToHome = () => {
+      mpx.switchTab({
+        url: '/pages/home/index'
+      })
+    }
+
+    const navToShopingCart = () => {
+      mpx.switchTab({
+        url: '/pages/cart/index'
+      })
+    }
+
     return {
+      menuButtonLeft,
+      productPrice,
       productInfo,
       guides,
       selectGuide,
@@ -273,12 +320,23 @@ createPage({
       selectGuideConfirm,
       navBack,
       swiperList,
-      bindready
+      bindready,
+      navToHome,
+      navToShopingCart
     }
   }
 
 })
 </script>
+
+<style>
+.nav-bar-title{
+  max-width: 100% !important;
+}
+.custome-nav{
+  padding-left: 32px
+}
+</style>
 
 <script name="json">
 module.exports = {

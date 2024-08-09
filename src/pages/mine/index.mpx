@@ -17,10 +17,10 @@
             <image mode="aspectFill" class="w-full h-full rounded-full" src="http://pic.yupoo.com/isfy666/b8e8c4b8/f6ebef7d.jpeg" />
           </view>
           <!-- 用户名称 -->
-          <view wx:if="{{customer}}" class="text-white text-sm whitespace-nowrap text-ellipsis overflow-hidden">
-            {{customer.name}}
+          <view wx:if="{{basicData.customer.id}}" class="text-white text-sm whitespace-nowrap text-ellipsis overflow-hidden">
+            {{basicData.customer.name}}
           </view>
-          <van-button wx:else bind:tap="getUserInfo">登录</van-button>
+          <van-button wx:else bind:tap="getUserInfo" size="small">登录</van-button>
         </view>
       </view>
     </view>
@@ -82,76 +82,63 @@
 </template>
 
 <script>
-import { createPage } from '@mpxjs/core'
-import { customerApi } from '../../api/common.js'
+import mpx, { createPage } from '@mpxjs/core'
 import { useBasicDataStore } from '@/store/base'
-import { storeToRefs } from '@mpxjs/pinia'
+// import { storeToRefs } from '@mpxjs/pinia'
 
 createPage({
   setup() {
-    const basicData = storeToRefs(useBasicDataStore())
-    console.log({ basicData })
-    return {
-      ...basicData
-    }
-  },
-  async getCustomerInfo() {
-    console.log(this.data)
+    // const basicData = storeToRefs(useBasicDataStore())
+    const basicData = useBasicDataStore()
+    basicData.getCustomerInfo()
 
-    if (this.data.openid) return
-    const data = await wx.login()
-    console.log({ data })
-    if (data.errMsg !== 'login:ok') return
-    const res = await customerApi.findForWxCode({ code: data.code })
-    console.log({ res })
-    this.setOpenid(res.openid)
-    if (res.customer) this.setCustomer(res.customer)
-  },
-  async getUserInfo() {
-    const data = await wx.getUserProfile({ desc: '创建会员' })
-    if (!data.errMsg.endsWith('ok')) return
-    const userInfo = data.userInfo
-    console.log({ userInfo })
+    const getUserInfo = async () => {
+      const data = await wx.getUserProfile({ desc: '创建会员' })
+      if (!data.errMsg.endsWith('ok')) return
+      const userInfo = data.userInfo
+      console.log({ userInfo })
+    }
+
+    return {
+      basicData,
+      getUserInfo
+    }
   },
   navToConsumeBill() {
     if (!this.data.openid) return this.getCustomerInfo()
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/mine/consume-bill/index'
     })
   },
   navToQueueBill() {
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/mine/queue-bill/index'
     })
   },
   navToReserveBill() {
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/mine/reserve-bill/index'
     })
   },
   navToCoupon() {
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/mine/coupon/index'
     })
   },
   navToAddress() {
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/mine/address/index'
     })
   },
   navToOrder({ mark }) {
     const { type } = mark
     console.log({ type })
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/mine/order/index?type=' + type
     })
   },
   onLoad() {
     this.setTabBar()
-    // this.getCustomerInfo()
-  },
-  navBack() {
-    wx.navigateBack()
   },
   setTabBar() {
     if (typeof this.getTabBar === 'function') {

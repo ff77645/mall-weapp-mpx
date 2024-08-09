@@ -1,4 +1,6 @@
 import { defineStore } from '@mpxjs/pinia'
+import { customerApi } from '@/api/common.js'
+import mpx from '@mpxjs/core'
 
 export const useBasicDataStore = defineStore('base', {
   state: () => {
@@ -6,7 +8,7 @@ export const useBasicDataStore = defineStore('base', {
       firstName: '',
       lastName: '',
       customer: {},
-      openid: '66666666666'
+      openid: ''
     }
   },
   getters: {
@@ -15,6 +17,18 @@ export const useBasicDataStore = defineStore('base', {
     }
   },
   actions: {
+    async getCustomerInfo() {
+      if (this.customer.id) return
+      const data = await mpx.login()
+      console.log({ data })
+      if (data.errMsg !== 'login:ok') return
+      const res = await customerApi.findForWxCode({ code: data.code })
+      console.log({ res })
+      this.openid = res.openid
+      if (res.customer) {
+        this.customer = res.customer
+      }
+    },
     setFirstName() {},
     setLastNamr() {},
     setOpenid(val) {

@@ -12,8 +12,8 @@
     class="scrollable"
     scroll-y
   >
-    <van-swipe-cell right-width="{{ 65 }}">
-      <product></product>
+    <van-swipe-cell wx:for="{{productList}}" wx:key="index" right-width="{{ 65 }}">
+      <product product="{{item.product}}" number="{{item.number}}"></product>
       <view slot="right" class="h-full bg-red-500 flex flex-col justify-center items-center" style="width:65px;">
         <van-icon name="delete-o" size="16" color="#fff" />
         <text class="text-xs text-white">删除</text>
@@ -39,12 +39,36 @@
 </template>
 
 <script>
-import { createPage } from '@mpxjs/core'
+import mpx, { createPage, ref } from '@mpxjs/core'
+import { mallCartApi } from '@/api/mall'
+import { useBasicDataStore } from '@/store/base'
 
 createPage({
   data: {
     checkedAll: false,
     isEdit: false
+  },
+  setup() {
+    const productList = ref([])
+    const basicData = useBasicDataStore()
+
+    const getProductList = async () => {
+      mpx.showLoading({ title: '加载中' })
+      if (!basicData.customer.id) {
+        await basicData.getCustomerInfo()
+      }
+      const data = await mallCartApi.findAll({
+        customer_id: basicData.customer.id
+      })
+      console.log({ data })
+      productList.value = data
+      mpx.hideLoading()
+    }
+
+    getProductList()
+    return {
+      productList
+    }
   },
   changeIsEdit() {
     this.setData({

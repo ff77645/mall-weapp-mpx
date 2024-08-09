@@ -11,22 +11,22 @@
   <view class="px-4 bg-white">
     <view class="py-4 flex items-center text-xs">
       <view class="text-xs w-20">收货人姓名</view>
-      <input class="flex-1" type="text" placeholder="请输入姓名"/>
+      <input wx:model="{{user_name}}" class="flex-1" type="text" placeholder="请输入姓名"/>
     </view>
     <view class="py-4 flex items-center text-xs">
       <view class="text-xs w-20">联系电话</view>
-      <input class="flex-1" type="text" placeholder="请输入电话"/>
+      <input wx:model="{{phone_number}}" class="flex-1" type="text" placeholder="请输入电话"/>
     </view>
     <view class="py-4 flex items-center text-xs">
       <view class="text-xs w-20">所在地区</view>
       <view bind:tap="toggleLocationPopup" class="flex items-center justify-between flex-1">
-        <input value="{{areaString}}" type="text" disabled placeholder="省市区县乡镇等"/>
+        <input value="{{location}}" type="text" disabled placeholder="省市区县乡镇等"/>
         <van-icon name="arrow" size="14" color="#666" />
       </view>
     </view>
     <view class="py-4 flex items-start text-xs">
       <view class="text-xs w-20">详情地址</view>
-      <textarea style="height:80px;" class="flex-1" type="text" placeholder="填写详细地址,不少于5个字"/>
+      <textarea wx:model="{{address}}" style="height:80px;" class="flex-1" type="text" placeholder="填写详细地址,不少于5个字"/>
     </view>
   </view>
   <view class="px-4 py-3 flex items-center justify-between bg-white mt-3">
@@ -36,7 +36,7 @@
 
 </scroll-view>
 <view class="px-4 py-1 bg-white">
-  <van-button type="danger" block round disabled="{{isDisabled}}">保存地址</van-button>
+  <van-button bind:tap="onSubmit" type="danger" block round disabled="{{!noDisabled}}">保存地址</van-button>
 </view>
 
 <!-- 区域选择 -->
@@ -71,47 +71,90 @@
 </template>
 
 <script>
-import { createPage } from '@mpxjs/core'
+import mpx, { computed, createPage, ref } from '@mpxjs/core'
+import { customerAddressApi } from '@/api/customer'
+import { useBasicDataStore } from '@/store/base'
 import { areaList } from '@vant/area-data'
 
 createPage({
-  data: {
-    isDefault: true,
-    isDisabled: true,
-    showLocationPopup: false,
-    areaList,
-    areaCode: '',
-    areaString: ''
-  },
-  toggleLocationPopup() {
-    this.setData({
-      showLocationPopup: !this.data.showLocationPopup
+  setup() {
+    const isDefault = ref(true)
+    const showLocationPopup = ref(false)
+    const basicData = useBasicDataStore()
+
+    const user_name = ref('')
+    const phone_number = ref('')
+    const address = ref('')
+    const location = ref('')
+
+    const noDisabled = computed(() => {
+      return user_name.value && phone_number.value && location.value && address.value.length > 4
     })
-  },
-  changeIsDefault() {
-    console.log(1222)
-    this.setData({
-      isDefault: !this.data.isDefault
-    })
-  },
-  // 选择区域
-  _areaCode: '110101',
-  _areaString: '北京市 北京市 东城区',
-  selectAreaChange(e) {
-    const values = e.detail.values
-    console.log(values)
-    this._areaCode = values[2].code
-    this._areaString = values.map(i => i.name).join(' ')
-  },
-  selectAreaConfirm() {
-    this.setData({
-      areaCode: this._areaCode,
-      areaString: this._areaString,
-      showLocationPopup: false
-    })
+
+    const toggleLocationPopup = () => {
+      showLocationPopup.value = !showLocationPopup.value
+    }
+
+    const changeIsDefault = () => {
+      isDefault.value = !isDefault.value
+    }
+
+    let _areaCode = '110101'
+    let _areaString = '北京市 北京市 东城区'
+    const areaCode = ref('')
+
+    const selectAreaChange = e => {
+      const values = e.detail.values
+      console.log(values)
+      _areaCode = values[2].code
+      _areaString = values.map(i => i.name).join(' ')
+    }
+
+    const selectAreaConfirm = () => {
+      areaCode.value = _areaCode
+      location.value = _areaString
+      showLocationPopup.value = false
+    }
+
+    const createAddress = async () => {
+      mpx.showLoading({ title: '创建中' })
+      const data = {
+        customer_id: basicData.customer.id,
+        area_code: +areaCode.value,
+        location: location.value,
+        address: address.value,
+        user_name: user_name.value,
+        phone_number: phone_number.value,
+        is_default: isDefault.value
+      }
+      await customerAddressApi.create(data)
+      mpx.hideLoading()
+      mpx.navigateBack()
+    }
+
+    const onSubmit = () => {
+      createAddress()
+    }
+
+    return {
+      onSubmit,
+      address,
+      phone_number,
+      user_name,
+      areaCode,
+      location,
+      showLocationPopup,
+      selectAreaChange,
+      selectAreaConfirm,
+      changeIsDefault,
+      toggleLocationPopup,
+      noDisabled,
+      areaList,
+      isDefault
+    }
   },
   navBack() {
-    wx.navigateBack()
+    mpx.navigateBack()
   }
 })
 </script>

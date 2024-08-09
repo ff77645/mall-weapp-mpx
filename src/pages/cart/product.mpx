@@ -8,7 +8,7 @@
       <view class="flex-1 flex flex-nowrap items-center">
         <!-- 商品图片 -->
         <image
-          src="http://pic.yupoo.com/isfy666/4832959c/e483921b.jpeg"
+          src="{{imgUrl}}"
           mode="aspectFill"
           class="rounded-md flex-none mr-4"
           style="width:65px;height:65px;"
@@ -17,14 +17,14 @@
         <!-- 商品信息 -->
         <view class="flex-1">
           <!-- 名称 -->
-          <view class="font-bold text-xs">小龙虾阿打算打 阿达阿达阿斯达是的撒阿斯顿撒大神大神大萨达</view>
+          <view class="font-bold text-xs">{{product.title}}</view>
           <!-- 规格 -->
           <view class="text-xs text-gray-600 mt-1">两款各一</view>
 
           <!-- 价格/数量 -->
           <view class="flex flex-nowrap justify-between items-center mt-2">
-            <view class="text-red-700 font-bold">￥129</view>
-            <i-stepper value="{{1}}"></i-stepper>
+            <view class="text-red-700 font-bold">￥{{product.retail_price / 100}}</view>
+            <i-stepper value="{{number}}"></i-stepper>
           </view>
         </view>
       </view>
@@ -32,17 +32,31 @@
 </template>
 <script>
 import { createComponent } from '@mpxjs/core'
+import { ASSET_BASE_URL } from '@/config/index'
 
 createComponent({
-
+  properties: {
+    product: Object,
+    number: Number
+  },
+  setup(props) {
+    console.log({ props })
+    let head_imgs = props.product.head_imgs
+    head_imgs = head_imgs ? JSON.parse(head_imgs) : []
+    const imgUrl = head_imgs.length ? ASSET_BASE_URL + head_imgs[0].url : ''
+    return {
+      imgUrl
+    }
+  }
 })
 </script>
 <script name="json">
   module.exports = {
-    "component": true,
-    "styleIsolation": "apply-shared",
+    // "component": true,
+    // "styleIsolation": "apply-shared",
     "usingComponents":{
-      "i-stepper":"../../components/stepper/index"
+      "i-stepper":"../../components/stepper/index",
+      "van-checkbox": "@vant/weapp/checkbox/index",
     }
   }
 </script>

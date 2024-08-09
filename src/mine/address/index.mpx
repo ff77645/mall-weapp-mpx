@@ -8,17 +8,19 @@
     class="scrollable"
     scroll-y
   >
-
-    <van-swipe-cell wx:for="{{3}}" wx:key="*this" right-width="{{ 130 }}">
+    <van-swipe-cell wx:for="{{addressList}}" wx:key="index" right-width="{{ 130 }}">
       <view bind:tap="openAddressListPopup" class="px-4 bg-white flex flex-col gap-3">
-        <view class="text-xs text-gray-600 pt-4">四川省 成都市 双流区</view>
+        <view class="text-xs text-gray-600 pt-4 flex justify-between">
+          <text>{{item.location}}</text>
+          <text wx:if="{{item.is_default}}" class="text-red-600 font-bold">默认</text>
+        </view>
         <view class="flex flex-nowrap justify-between">
-          <text class="text-sm font-bold">河畔新世界</text>
+          <text class="text-sm font-bold">{{item.address}}</text>
         </view>
         <view class="flex justify-between items-center pb-4 van-hairline--bottom">
           <view class="text-xs text-gray-600">
-            <text>冯杨</text>
-            <text class="ml-2">1738****1723</text>
+            <text>{{item.user_name}}</text>
+            <text class="ml-2">{{item.phone_number}}</text>
           </view>
         </view>
       </view>
@@ -40,16 +42,34 @@
 </template>
 
 <script>
-import { createPage } from '@mpxjs/core'
+import mpx, { createPage, ref, onShow } from '@mpxjs/core'
+import { customerAddressApi } from '@/api/customer'
+import { useBasicDataStore } from '@/store/base'
 
 createPage({
+  setup() {
+    const basicData = useBasicDataStore()
+    const addressList = ref([])
+    const getAddressList = async () => {
+      const data = await customerAddressApi.findAll({
+        customer_id: basicData.customer.id
+      })
+      addressList.value = data
+    }
+
+    onShow(getAddressList)
+
+    return {
+      addressList
+    }
+  },
   addAddress() {
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/mine/address-add/index'
     })
   },
   navBack() {
-    wx.navigateBack()
+    mpx.navigateBack()
   }
 })
 </script>
