@@ -6,6 +6,24 @@
     class="scrollable"
     scroll-y
   >
+
+      <!-- autoplay -->
+    <video
+      class="w-full"
+      loop
+      enable-play-gesture
+      show-center-play-btn="{{false}}"
+      show-play-btn="{{false}}"
+      enable-progress-gesture="{{false}}"
+      auto-pause-if-navigate="{{false}}"
+      auto-pause-if-open-native="{{false}}"
+      show-bottom-progress="{{false}}"
+      show-fullscreen-btn="{{false}}"
+      controls="{{false}}"
+      object-fit="cover"
+      src="https://uvd.yupoo.com/isfy666/22823576.mp4"
+      bind:tap="tapVideo"
+    ></video>
     <!-- 轮播 -->
     <swiper indicator-dots class="" style="height: 280px;">
       <swiper-item wx:for="{{swiperList}}" wx:key="*this">
@@ -42,6 +60,9 @@ createPage({
       { src: 'http://pic.yupoo.com/isfy666/b7c9c6c4/bc4d4fcf.jpeg' }
     ],
     title: '11111'
+  },
+  tapVideo() {
+    console.log('tapVideo')
   },
   touchstart(event) {
     const touch = event.touches[0]

@@ -1,18 +1,18 @@
 <template>
   <view class="flex flex-nowrap justify-between items-center gap-1">
     <van-checkbox
-      value="{{ false }}"
+      value="{{ checked }}"
       bind:change="changeChecked"
       checked-color="#ee0a24"
       icon-size="16"
     ></van-checkbox>
     <view class="flex-1">
       <view class="flex flex-nowrap items-center justify-between">
-        <view class="text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis">四川省 成都市 双流区</view>
+        <view class="text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{address.location}}</view>
         <van-icon name="edit" color="#666" size="22" />
       </view>
       <view class="flex flex-nowrap justify-between mt-2" >
-        <view class="text-xs text-gray-600">冯杨 17386701723</view>
+        <view class="text-xs text-gray-600">{{address.user_name}} {{address.phone_number}}</view>
       </view>
     </view>
   </view>
@@ -22,7 +22,15 @@
 import { createComponent } from '@mpxjs/core'
 
 createComponent({
-
+  properties: {
+    address: Object,
+    checked: Boolean
+  },
+  methods: {
+    changeChecked() {
+      this.triggerEvent('select')
+    }
+  }
 })
 </script>
 

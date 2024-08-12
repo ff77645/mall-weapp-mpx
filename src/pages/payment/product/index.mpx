@@ -2,7 +2,7 @@
   <view class="flex flex-nowrap px-4 py-3 bg-white items-center mt-3">
     <!-- 商品图片 -->
     <image
-      src="http://pic.yupoo.com/isfy666/01c2118a/fff21779.jpeg"
+      src="{{imgUrl}}"
       lazy-load="{{true}}"
       mode="aspectFill"
       style="width:65px;height:65px;"
@@ -12,18 +12,37 @@
       <!-- 商品信信 -->
       <view class="flex-1">
         <view >
-          <view class="text-sm font-bold van-multi-ellipsis--l2">舒服舒服胜多负少防守打法手打发撒手打发撒代发手打尴尬代发很尬发哈干哈搭嘎</view>
-          <view class="text-gray-600 text-xs mt-1">两款各一</view>
+          <view class="text-sm font-bold van-multi-ellipsis--l2">{{product.title}}</view>
+          <view class="text-gray-600 text-xs mt-1" wx:if="{{product.guides}}">{{product.guides}}</view>
         </view>
         <view class="mt-3">
-          <view class="text-red-600 font-bold text-sm">￥129</view>
+          <view class="text-red-600 font-bold text-sm">￥{{product.retail_price / 100}}</view>
           <view class="flex items-center">
             <van-icon name="close" size="12" />
             <text class="ml-1 text-xs text-gray-600">不支持7天无理由退货</text>
           </view>
         </view>
       </view>
-      <text class="self-center font-bold text-xs">x1</text>
+      <text class="self-center font-bold text-xs">x{{product.number}}</text>
     </view>
   </view>
 </template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+import { ASSET_BASE_URL } from '@/config/index'
+
+createComponent({
+  properties: {
+    product: Object
+  },
+  computed: {
+    imgUrl() {
+      let head_imgs = this.product.head_imgs
+      head_imgs = head_imgs ? JSON.parse(head_imgs) : []
+      const imgUrl = head_imgs.length ? ASSET_BASE_URL + head_imgs[0].url : ''
+      return imgUrl
+    }
+  }
+})
+</script>

@@ -16,3 +16,39 @@
     ></van-icon>
   </view>
 </template>
+<script>
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    value: Number
+  },
+  methods: {
+    clickMinus() {
+      this.triggerEvent('minus', this.data.value - 1)
+    },
+    clickPlus() {
+      this.triggerEvent('plus', this.data.value + 1)
+    }
+  }
+})
+</script>
+
+<style lang="scss">
+.stepper-minus{
+  border: 1px solid #ee0a24;
+  border-radius: 50%;
+  position: relative;
+  &::before{
+    display: block;
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 1px;
+    background: #ee0a24;
+    transform: translate(-50%,-50%);
+  }
+}
+</style>

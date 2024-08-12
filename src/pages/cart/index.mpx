@@ -4,7 +4,7 @@
   />
 
   <!-- 编辑 -->
-  <view class="px-4 py-3 bg-white flex justify-between">
+  <view class="px-4 py-2 bg-white flex justify-between">
     <view></view>
     <text bind:tap="changeIsEdit" class="text-xs">{{isEdit ? '完成' : '编辑'}}</text>
   </view>
@@ -12,9 +12,16 @@
     class="scrollable"
     scroll-y
   >
-    <van-swipe-cell wx:for="{{productList}}" wx:key="index" right-width="{{ 65 }}">
-      <product product="{{item.product}}" number="{{item.number}}"></product>
-      <view slot="right" class="h-full bg-red-500 flex flex-col justify-center items-center" style="width:65px;">
+    <van-swipe-cell wx:for="{{productList}}" wx:key="id" right-width="{{ 65 }}">
+      <product
+        product="{{item.product}}"
+        number="{{item.number}}"
+        checked="{{item.checked}}"
+        guides="{{item.guides}}"
+        bind:select-checked="selectChecked(index,$event)"
+        bind:change-number="changeGoodsNumber(index,$event)"
+      ></product>
+      <view slot="right" bind:tap="deleteGoodsSingle(item)" class="h-full bg-red-500 flex flex-col justify-center items-center" style="width:65px;">
         <van-icon name="delete-o" size="16" color="#fff" />
         <text class="text-xs text-white">删除</text>
       </view>
@@ -22,36 +29,57 @@
   </scroll-view>
   <!-- 购买 -->
   <view class="px-4 py-2 bg-white flex flex-row items-center justify-between" style="height:51px;">
-    <van-checkbox value="{{ checkedAll }}" icon-size="18" checked-color="#ee0a24" label-class="text-sm text-gray-600" bind:change="changeCheckedAll">全选</van-checkbox>
+    <van-checkbox value="{{ isCheckedAll }}" icon-size="18" checked-color="#ee0a24" label-class="text-sm text-gray-600" bind:change="changeCheckedAll">全选</van-checkbox>
     <view wx:if="{{isEdit}}" class="flex flex-nowrap gap-2">
-      <van-button type="danger" size="mini" round plain>删除</van-button>
+      <van-button bind:tap="deleteGoodsMut" type="danger" size="mini" round plain>删除</van-button>
     </view>
     <view wx:else class="flex flex-row flex-nowrap gap-3 items-center">
       <view class="flex items-center">
         <text class="text-sm">合计:</text>
         <text class="text-xs" style="color:#ee0a24;">￥</text>
-        <text class="font-bold" style="color:#ee0a24;">129</text>
+        <text class="font-bold" style="color:#ee0a24;">{{totalPrice / 100}}</text>
       </view>
-      <van-button color="linear-gradient(to right, rgb(255, 96, 52), rgb(238, 10, 36))" size="small" round custom-style="width:100px;height:35px;">去结算</van-button>
+      <van-button
+        color="linear-gradient(to right, rgb(255, 96, 52), rgb(238, 10, 36))"
+        size="small"
+        round
+        custom-style="width:100px;height:35px;"
+        bind:click="navToPayment"
+      >去结算</van-button>
     </view>
   </view>
   <view style="height:calc(50px + env(safe-area-inset-bottom));"></view>
 </template>
 
 <script>
-import mpx, { createPage, ref } from '@mpxjs/core'
+import mpx, { computed, createPage, ref, onLoad } from '@mpxjs/core'
 import { mallCartApi } from '@/api/mall'
 import { useBasicDataStore } from '@/store/base'
 
 createPage({
-  data: {
-    checkedAll: false,
-    isEdit: false
-  },
   setup() {
     const productList = ref([])
     const basicData = useBasicDataStore()
 
+    const isEdit = ref(false)
+    const changeIsEdit = () => { isEdit.value = !isEdit.value }
+
+    // 是否全部选中
+    const isCheckedAll = computed(() => {
+      if (!productList.value.length) return false
+      return productList.value.every(i => i.checked)
+    })
+
+    // 选中商品总价
+    const totalPrice = computed(() => {
+      let value = 0
+      productList.value.forEach(item => {
+        if (item.checked) value += item.product.retail_price * item.number
+      })
+      return value
+    })
+
+    // 查询购物车商品
     const getProductList = async () => {
       mpx.showLoading({ title: '加载中' })
       if (!basicData.customer.id) {
@@ -60,23 +88,116 @@ createPage({
       const data = await mallCartApi.findAll({
         customer_id: basicData.customer.id
       })
-      console.log({ data })
+      data.forEach(i => {
+        i.checked = false
+      })
       productList.value = data
       mpx.hideLoading()
     }
 
-    getProductList()
-    return {
-      productList
+    // 选中商品
+    const selectChecked = (index, ev) => {
+      productList.value[index].checked = ev.detail
     }
-  },
-  changeIsEdit() {
-    this.setData({
-      isEdit: !this.data.isEdit
-    })
-  },
-  changeCheckedAll(e) {
-    console.log({ e })
+
+    // 全选
+    const changeCheckedAll = (e) => {
+      productList.value.forEach(i => {
+        i.checked = e.detail
+      })
+    }
+
+    // 删除商品
+    const deleteGoodes = async ids => {
+      await mallCartApi.remove(ids)
+      getProductList()
+    }
+
+    // 删除单个商品
+    const deleteGoodsSingle = (item) => {
+      mpx.showModal({
+        title: '商品删除',
+        content: '请确认是否删除当前商品?',
+        showCancel: true,
+        success(e) {
+          if (!e.confirm) return
+          deleteGoodes(item.id)
+        }
+      })
+    }
+
+    // 删除多个商品
+    const deleteGoodsMut = () => {
+      const checkedGoods = productList.value.filter(i => i.checked)
+      if (!checkedGoods.length) {
+        return mpx.showToast({
+          title: '请选择商品',
+          icon: 'none'
+        })
+      }
+      mpx.showModal({
+        title: '商品删除',
+        content: '请确认是否删除选中商品?',
+        showCancel: true,
+        success(e) {
+          if (!e.confirm) return
+          const ids = checkedGoods.map(i => i.id).join(',')
+          deleteGoodes(ids)
+        }
+      })
+    }
+
+    onLoad(getProductList)
+
+    // 修改商品数量
+    const changeGoodsNumber = async (index, event) => {
+      console.log({ index, event })
+      const id = productList.value[index].id
+      if (!id) return
+      await mallCartApi.update(id, { number: event.detail })
+      productList.value[index].number = event.detail
+    }
+
+    // 去支付
+    const navToPayment = () => {
+      const checkedGoods = productList.value.filter(i => i.checked)
+      if (!checkedGoods.length) {
+        mpx.showToast({
+          title: '请选择商品',
+          icon: 'none'
+        })
+        return
+      }
+      const data = checkedGoods.map(i => {
+        return {
+          ...i.product,
+          mall_cart_id: i.id,
+          number: i.number,
+          guides: i.guides
+          // guides_optional: i.guides_optional
+        }
+      })
+      mpx.navigateTo({
+        url: '/pages/payment/index',
+        success(e) {
+          e.eventChannel.emit('data', data)
+        }
+      })
+    }
+
+    return {
+      navToPayment,
+      changeGoodsNumber,
+      totalPrice,
+      deleteGoodsMut,
+      deleteGoodsSingle,
+      isEdit,
+      isCheckedAll,
+      productList,
+      changeIsEdit,
+      changeCheckedAll,
+      selectChecked
+    }
   },
   setTabBar() {
     if (typeof this.getTabBar === 'function') {

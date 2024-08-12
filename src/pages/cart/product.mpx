@@ -2,7 +2,12 @@
   <view class="bg-white px-4 py-3 flex flex-nowrap gap-2 mt-3 rounded-md">
     <!-- left -->
     <view class="flex flex-none items-center">
-        <van-checkbox value="{{ false }}" icon-size="18" bind:change="selectProduct"></van-checkbox>
+        <van-checkbox
+          value="{{ checked }}"
+          icon-size="18"
+          bind:change="selectProduct"
+          checked-color="#ee0a24"
+        ></van-checkbox>
     </view>
     <!-- right -->
       <view class="flex-1 flex flex-nowrap items-center">
@@ -12,40 +17,61 @@
           mode="aspectFill"
           class="rounded-md flex-none mr-4"
           style="width:65px;height:65px;"
+          bind:tap="navToProductDetail"
         />
 
         <!-- 商品信息 -->
         <view class="flex-1">
           <!-- 名称 -->
-          <view class="font-bold text-xs">{{product.title}}</view>
+          <view bind:tap="navToProductDetail" class="font-bold text-xs">{{product.title}}</view>
           <!-- 规格 -->
-          <view class="text-xs text-gray-600 mt-1">两款各一</view>
+          <view class="text-xs text-gray-600 mt-1" wx:if="{{guides}}">{{guides}}</view>
 
           <!-- 价格/数量 -->
           <view class="flex flex-nowrap justify-between items-center mt-2">
             <view class="text-red-700 font-bold">￥{{product.retail_price / 100}}</view>
-            <i-stepper value="{{number}}"></i-stepper>
+            <i-stepper value="{{number}}" bind:minus="onMinus" bind:plus="onPlus"></i-stepper>
           </view>
         </view>
       </view>
   </view>
 </template>
 <script>
-import { createComponent } from '@mpxjs/core'
+import mpx, { createComponent } from '@mpxjs/core'
 import { ASSET_BASE_URL } from '@/config/index'
 
 createComponent({
   properties: {
     product: Object,
-    number: Number
+    number: Number,
+    checked: Boolean,
+    guides: String
   },
   setup(props) {
     console.log({ props })
     let head_imgs = props.product.head_imgs
     head_imgs = head_imgs ? JSON.parse(head_imgs) : []
     const imgUrl = head_imgs.length ? ASSET_BASE_URL + head_imgs[0].url : ''
+
+    const navToProductDetail = () => {
+      mpx.navigateTo({
+        url: `/pages/product-detail/index?id=${props.product.id}`
+      })
+    }
     return {
+      navToProductDetail,
       imgUrl
+    }
+  },
+  methods: {
+    selectProduct() {
+      this.triggerEvent('select-checked', !this.data.checked)
+    },
+    onMinus(e) {
+      this.triggerEvent('change-number', e.detail)
+    },
+    onPlus(e) {
+      this.triggerEvent('change-number', e.detail)
     }
   }
 })
