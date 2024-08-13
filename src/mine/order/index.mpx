@@ -16,14 +16,21 @@
     scroll-y
   >
     <view style="height:1px;"></view>
-    <order-item wx:for="{{3}}" wx:key="*this"></order-item>
+    <order-item
+      wx:for="{{orderList}}"
+      wx:key="id"
+      order="{{item}}"
+    ></order-item>
     <view style="height:1px;"></view>
   </scroll-view>
 </template>
 
 <script>
 import { createPage } from '@mpxjs/core'
-
+import { mallOrderApi } from '@/api/mall'
+import { mapState } from '@mpxjs/pinia'
+import { useBasicDataStore } from '@/store/base'
+import { ASSET_BASE_URL } from '@/config/index'
 const tabList = [
   {
     title: '全部'
@@ -41,16 +48,49 @@ const tabList = [
     title: '已完成'
   }
 ]
+
+const getImageUrl = jsondata => {
+  if (!jsondata) return ''
+  try {
+    const arr = JSON.parse(jsondata)
+    const url = arr.length ? arr[0].url : ''
+    return url ? ASSET_BASE_URL + url : ''
+  } catch (err) {
+    return ''
+  }
+}
 createPage({
   data: {
     tabList,
-    tabIndex: 0
+    tabIndex: 0,
+    page: 1,
+    limit: 10,
+    orderList: []
+  },
+  computed: {
+    ...mapState(useBasicDataStore, ['customer'])
+  },
+  async findData() {
+    const res = await mallOrderApi.findAll({
+      page: this.page,
+      limit: this.limit,
+      customer_id: this.customer.id
+    })
+    res.data.forEach(order => {
+      order.products.forEach(i => {
+        // const imgUrl = getImageUrl()
+        i.imgUrl = i.product ? getImageUrl(i.product.head_imgs) : ''
+      })
+    })
+    console.log({ res })
+    this.orderList = res.data
   },
   onLoad({ type }) {
     console.log({ type })
     this.setData({
       tabIndex: +type
     })
+    this.findData()
   },
   navBack() {
     wx.navigateBack()

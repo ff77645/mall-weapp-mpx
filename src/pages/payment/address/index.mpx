@@ -1,20 +1,17 @@
 <template>
-  <view class="flex flex-nowrap justify-between items-center gap-1">
-    <van-checkbox
-      value="{{ checked }}"
-      bind:change="changeChecked"
-      checked-color="#ee0a24"
-      icon-size="16"
-    ></van-checkbox>
-    <view class="flex-1">
-      <view class="flex flex-nowrap items-center justify-between">
+  <view class="flex flex-nowrap items-center gap-3">
+    <view bind:tap="changeChecked" class="flex flex-nowrap gap-1 items-center flex-1 overflow-hidden">
+      <van-checkbox
+        value="{{ checked }}"
+        checked-color="#ee0a24"
+        icon-size="16"
+      ></van-checkbox>
+      <view class="flex-1">
         <view class="text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{address.location}}</view>
-        <van-icon name="edit" color="#666" size="22" />
-      </view>
-      <view class="flex flex-nowrap justify-between mt-2" >
-        <view class="text-xs text-gray-600">{{address.user_name}} {{address.phone_number}}</view>
+        <view class="text-xs text-gray-600 mt-2">{{address.user_name}} {{address.phone_number}}</view>
       </view>
     </view>
+    <van-icon name="edit" color="#666" size="22" />
   </view>
 </template>
 

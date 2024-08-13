@@ -1,10 +1,10 @@
 <template>
   <view class="bg-white rounded-md p-3 m-4">
     <!-- 商品 -->
-    <view wx:for="{{3}}" wx:key="*this" class="flex flex-nowrap items-center mb-3 pb-3 van-hairline--bottom">
+    <view wx:for="{{order.products}}" wx:key="id" class="flex flex-nowrap items-center mb-3 pb-3 van-hairline--bottom">
       <!-- 商品图片 -->
       <image
-        src="http://pic.yupoo.com/isfy666/01c2118a/fff21779.jpeg"
+        src="{{item.imgUrl}}"
         lazy-load="{{true}}"
         mode="aspectFill"
         style="width:65px;height:65px;"
@@ -14,33 +14,53 @@
         <!-- 商品信信 -->
         <view class="flex-1">
           <view >
-            <view class="text-xs font-bold van-multi-ellipsis--l2">舒服舒服胜多负少防守打法手打发撒手打发撒代发手打尴尬代发很尬发哈干哈搭嘎</view>
-            <view class="text-gray-600 text-xs mt-1">两款各一</view>
+            <view class="text-xs font-bold van-multi-ellipsis--l2">{{item.title}}</view>
+            <view class="text-gray-600 text-xs mt-1" wx:if="{{item.guides}}">{{item.guides}}</view>
           </view>
           <view class="mt-3">
-            <view class="text-red-600 font-bold text-sm">￥129</view>
+            <view class="text-red-600 font-bold text-sm">￥{{item.unit_price / 100}}</view>
             <view wx:if="{{index}}" class="flex items-center" style="margin-top:2px;">
               <van-icon name="close" size="10" />
               <text class="ml-1 text-gray-600" style="font-size:10px;">不支持7天无理由退货</text>
             </view>
           </view>
         </view>
-        <text class="self-center font-bold text-xs">x1</text>
+        <text class="self-center font-bold text-xs">x{{item.number}}</text>
       </view>
     </view>
     <!-- 商品合计 -->
     <view class="flex justify-end mt-3">
       <view class="flex items-center text-sm">
-        <text class="text-gray-600">共1件</text>
+        <text class="text-gray-600" wx:if="{{totalNumber}}">共{{totalNumber}}件</text>
         <text class="mx-1">合计:</text>
-        <text class="font-bold text-red-600">￥29</text>
+        <text class="font-bold text-red-600">￥{{order.sum_price / 100}}</text>
       </view>
     </view>
     <!-- 操作 -->
     <view class="flex flex-row flex-nowrap justify-end gap-3 mt-3">
       <van-button size="small" plain round>催发货</van-button>
       <van-button size="small" plain round>确认收货</van-button>
-      <van-button size="small" plain round type="danger">立即支付</van-button>
+      <van-button wx:if="{{order.status === 0}}" size="small" plain round type="danger">立即支付</van-button>
     </view>
   </view>
 </template>
+<script>
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    order: Object
+  },
+  computed: {
+    totalNumber() {
+      let num = 0
+      // if (!this.order || !this.order.products) return num
+      const products = this.order.products
+      products.forEach(i => {
+        num += i.numer
+      })
+      return num
+    }
+  }
+})
+</script>

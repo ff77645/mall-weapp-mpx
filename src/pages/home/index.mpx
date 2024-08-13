@@ -51,6 +51,8 @@
 </template>
 <script>
 import { createPage } from '@mpxjs/core'
+import { useBasicDataStore } from '@/store/base'
+import { mapActions } from '@mpxjs/pinia'
 
 createPage({
   data: {
@@ -61,6 +63,7 @@ createPage({
     ],
     title: '11111'
   },
+  ...mapActions(useBasicDataStore, ['getCustomerInfo']),
   tapVideo() {
     console.log('tapVideo')
   },
@@ -71,15 +74,6 @@ createPage({
   touchMove(event) {
     const touch = event.touches[0]
     console.log({ touch })
-  },
-  async getCustomerInfo() {
-    const data = await wx.login()
-    console.log({ data })
-    if (data.errMsg !== 'login:ok') return
-    const res = await customerApi.findForWxCode({ code: data.code })
-    console.log({ res })
-    this.setOpenid(res.openid)
-    // if(res.customer) this.setCustomer(res.customer)
   },
   async navToOrder() {
     this.setData({ title: '6666666' })
@@ -112,6 +106,7 @@ createPage({
   },
   onLoad() {
     this.setTabBar()
+    this.getCustomerInfo()
   }
 })
 </script>

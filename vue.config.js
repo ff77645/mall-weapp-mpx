@@ -6,6 +6,9 @@ module.exports = defineConfig({
   pluginOptions: {
     mpx: {
       plugin: {
+        defs: {
+          __env__: process.env.NODE_ENV
+        },
         srcMode: 'wx',
         hackResolveBuildDependencies: ({ files, resolveDependencies }) => {
           const path = require('path')

@@ -4,7 +4,7 @@
         "urlCheck": true,
         "es6": false,
         "postcss": true,
-        "minified": false,
+        "minified": true,
         "checkSiteMap": false,
         "autoAudits": false,
         "babelSetting": {
@@ -31,5 +31,6 @@
         "ignore": [],
         "include": []
     },
-    "appid": "wxdebec0414d939220"
+    "appid": "wxdebec0414d939220",
+    "projectname": "mall-weapp-mpx"
 }

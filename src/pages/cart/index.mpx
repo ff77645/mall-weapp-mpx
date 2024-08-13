@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import mpx, { computed, createPage, ref, onLoad } from '@mpxjs/core'
+import mpx, { computed, createPage, ref, onShow } from '@mpxjs/core'
 import { mallCartApi } from '@/api/mall'
 import { useBasicDataStore } from '@/store/base'
 
@@ -147,7 +147,7 @@ createPage({
       })
     }
 
-    onLoad(getProductList)
+    onShow(getProductList)
 
     // 修改商品数量
     const changeGoodsNumber = async (index, event) => {

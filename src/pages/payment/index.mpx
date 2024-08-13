@@ -35,14 +35,20 @@
     <view class="mt-3 px-4">
       <view class="text-xs font-bold mb-1">配送方式:</view>
       <view class="gap-4 text-sm font-bold grid grid-cols-2">
-        <view class="border rounded-md bg-white border-white py-5 text-center">
-          快递发货
-        </view>
-        <view class="border rounded-md py-5 text-center border-red-600 bg-red-50 text-red-600">
+        <view
+          class="border rounded-md py-5 text-center {{delivery_method === 0 ? 'border-red-600 bg-red-50 text-red-600' : 'bg-white border-white'}}"
+          bind:tap="setExpressType(0)"
+        >
           商家集送
         </view>
+        <view
+          class="border rounded-md py-5 text-center {{delivery_method === 1 ? 'border-red-600 bg-red-50 text-red-600' : 'bg-white border-white'}}"
+          bind:tap="setExpressType(1)"
+        >
+          快递发货
+        </view>
       </view>
-      <view class="p-3 text-yellow-600 bg-yellow-50 mt-3 rounded-md text-xs">
+      <view wx:if="{{delivery_method === 0}}" class="p-3 text-yellow-600 bg-yellow-50 mt-3 rounded-md text-xs">
         <view>
           配送说明: 商家集送是由商家在 <text class="font-bold">每周日</text> 对本周产生的所有订单进行统一配送,现杀现卖,冷链运输。
         </view>
@@ -62,7 +68,7 @@
     <!-- 卖家留言 -->
     <view class="flex justify-between items-center px-4 py-3 bg-white mt-3">
       <view class="text-xs">买家留言</view>
-      <input wx:model="{{describe}}" placeholder="填写内容与商家协商确认,50字以内" class="text-right text-xs" />
+      <input  wx:model="{{describe}}" placeholder="填写内容与商家协商确认,50字以内" class="text-right text-xs flex-1" />
     </view>
 
     <!-- 支付数据 -->
@@ -138,6 +144,7 @@
 <script>
 import mpx, { createPage } from '@mpxjs/core'
 import { customerAddressApi } from '@/api/customer'
+import { mallOrderApi } from '@/api/mall'
 import { mapState } from '@mpxjs/pinia'
 import { useBasicDataStore } from '@/store/base'
 
@@ -148,7 +155,9 @@ createPage({
     productList: [],
     currentAddress: {},
     freight: 0,
-    describe: ''
+    describe: '',
+    delivery_method: 0,
+    payment_method: 0
   },
   computed: {
     ...mapState(useBasicDataStore, ['customer']),
@@ -173,6 +182,9 @@ createPage({
       this.productList = products
     })
     this.getAddressList()
+  },
+  setExpressType(val) {
+    this.delivery_method = +val
   },
   async getAddressList() {
     const data = await customerAddressApi.findAll({
@@ -201,7 +213,7 @@ createPage({
     mpx.navigateBack()
   },
   // 创建单据
-  createMallOrder() {
+  async createMallOrder() {
     if (!this.currentAddress.id) return mpx.showToast({ title: '请选择收货地址', icon: 'none' })
 
     const address = {
@@ -227,17 +239,37 @@ createPage({
     const billData = {
       address,
       products,
-      // delivery_method:
+      delivery_method: this.delivery_method,
       freight: this.freight,
       total_price: this.totalPrice,
       discount_amount: 0,
       sum_price,
-      real_price: sum_price,
-      payment_method: 'wechat',
-      describe: this.describe
+      describe: this.describe,
+      customer_id: this.customer.id
     }
-
     console.log({ billData })
+    mpx.showLoading({
+      title: '提交订单'
+    })
+    const res = await mallOrderApi.create(billData)
+    console.log({ res })
+    if (!res.id) return mpx.hideLoading()
+    mpx.showLoading({ title: '支付中' })
+    this.handlePayment(billData.sum_price, res.id)
+  },
+  // 支付
+  handlePayment(price, order_id) {
+    setTimeout(() => {
+      this.updateMallOrder(order_id)
+    }, 500)
+  },
+  // 支付成功更新订单状态
+  async updateMallOrder(order_id) {
+    await mallOrderApi.checkout({
+      mall_order_id: order_id,
+      payment_method: this.payment_method
+    })
+    mpx.showToast({ title: '下单成功', icon: 'none' })
   },
   onSubmit() {
     this.createMallOrder()
