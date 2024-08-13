@@ -37,7 +37,7 @@
         <text>认养</text>
       </view>
       <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3" style="min-width:40%;">
-        <text>拼猪{{title}}</text>
+        <text>拼猪</text>
       </view>
       <view
         bind:touchstart="touchstart"

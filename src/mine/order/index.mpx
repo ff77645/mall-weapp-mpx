@@ -7,8 +7,13 @@
   <view class="bg-white">
     <van-tabs
       active="{{ tabIndex }}"
+      bind:change="changeTag"
     >
-      <van-tab wx:for="{{tabList}}" wx:key="title" title="{{item.title}}"></van-tab>
+      <van-tab
+        wx:for="{{tabList}}"
+        wx:key="title"
+        title="{{item.title}}"
+      ></van-tab>
     </van-tabs>
   </view>
   <scroll-view
@@ -33,19 +38,24 @@ import { useBasicDataStore } from '@/store/base'
 import { ASSET_BASE_URL } from '@/config/index'
 const tabList = [
   {
-    title: '全部'
+    title: '全部',
+    status: ''
   },
   {
-    title: '待付款'
+    title: '待付款',
+    status: '0'
   },
   {
-    title: '待发货'
+    title: '待发货',
+    status: '1'
   },
   {
-    title: '待收货'
+    title: '待收货',
+    status: '2'
   },
   {
-    title: '已完成'
+    title: '已完成',
+    status: '3'
   }
 ]
 
@@ -65,17 +75,27 @@ createPage({
     tabIndex: 0,
     page: 1,
     limit: 10,
-    orderList: []
+    orderList: [],
+    status: ''
   },
   computed: {
     ...mapState(useBasicDataStore, ['customer'])
   },
+  changeTag({ detail }) {
+    const { index } = detail
+    this.status = tabList[index].status
+    this.findData()
+  },
   async findData() {
-    const res = await mallOrderApi.findAll({
+    const params = {
       page: this.page,
       limit: this.limit,
       customer_id: this.customer.id
-    })
+    }
+    if (this.status) {
+      params.status = this.status
+    }
+    const res = await mallOrderApi.findAll(params)
     res.data.forEach(order => {
       order.products.forEach(i => {
         // const imgUrl = getImageUrl()
@@ -87,6 +107,7 @@ createPage({
   },
   onLoad({ type }) {
     console.log({ type })
+    this.status = tabList[type].status
     this.setData({
       tabIndex: +type
     })

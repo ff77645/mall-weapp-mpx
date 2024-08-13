@@ -31,7 +31,7 @@
   <view class="px-4 py-2 bg-white flex flex-row items-center justify-between" style="height:51px;">
     <van-checkbox value="{{ isCheckedAll }}" icon-size="18" checked-color="#ee0a24" label-class="text-sm text-gray-600" bind:change="changeCheckedAll">全选</van-checkbox>
     <view wx:if="{{isEdit}}" class="flex flex-nowrap gap-2">
-      <van-button bind:tap="deleteGoodsMut" type="danger" size="mini" round plain>删除</van-button>
+      <van-button bind:tap="deleteGoodsMut" type="danger" size="small" round plain>删除</van-button>
     </view>
     <view wx:else class="flex flex-row flex-nowrap gap-3 items-center">
       <view class="flex items-center">
