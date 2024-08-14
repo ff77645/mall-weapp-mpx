@@ -85,11 +85,15 @@ createPage({
       if (!basicData.customer.id) {
         await basicData.getCustomerInfo()
       }
+      const checkedIds = []
+      productList.value.forEach(i => {
+        if (i.checked) checkedIds.push(i.id)
+      })
       const data = await mallCartApi.findAll({
         customer_id: basicData.customer.id
       })
       data.forEach(i => {
-        i.checked = false
+        i.checked = checkedIds.includes(i.id)
       })
       productList.value = data
       mpx.hideLoading()

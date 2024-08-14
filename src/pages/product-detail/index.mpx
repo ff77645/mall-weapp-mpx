@@ -55,8 +55,8 @@
     <!-- 地址 -->
     <view class="flex flex-nowrap items-center p-3">
       <view class="text-xs text-gray-600 mr-3">送至</view>
-      <view class="flex-1 flex flex-nowrap justify-between items-center">
-        <view class="text-black text-xs font-bold">北京 北京市 朝阳区</view>
+      <view bind:tap="openAddressListPopup" class="flex-1 flex flex-nowrap justify-between items-center">
+        <view class="text-black text-xs font-bold">{{ currentAddress ? currentAddress.location : '请选择地址'}}</view>
         <van-icon name="arrow" size="14"/>
       </view>
     </view>
@@ -157,6 +157,7 @@
   <view style="height:50px;"></view>
   <view class="safe-area-inset-bottom"></view>
 </van-popup>
+<select-address show="{{showAddressList}}" bind:close="closeAddressListPopup"></select-address>
 </template>
 
 <script>
@@ -169,15 +170,18 @@ import {
 import { mallCartApi } from '@/api/mall'
 import { ASSET_BASE_URL } from '@/config/index'
 import { useBasicDataStore } from '@/store/base'
+import { storeToRefs } from '@mpxjs/pinia'
 
 createPage({
   setup() {
     const productInfo = ref({})
     const guides = ref([])
     const showGuideModel = ref(false)
+    const showAddressList = ref(false)
     const swiperList = ref([])
     const productPrice = ref(0)
     const basicData = useBasicDataStore()
+    const { currentAddress } = storeToRefs(basicData)
     const instance = getCurrentInstance()
 
     const menuRect = wx.getMenuButtonBoundingClientRect()
@@ -351,7 +355,18 @@ createPage({
       })
     }
 
+    const openAddressListPopup = () => {
+      showAddressList.value = true
+    }
+    const closeAddressListPopup = () => {
+      showAddressList.value = false
+    }
+
     return {
+      closeAddressListPopup,
+      openAddressListPopup,
+      showAddressList,
+      currentAddress,
       popupActionType,
       number,
       onPlus,
@@ -397,7 +412,8 @@ module.exports = {
     "van-goods-action-icon": "@vant/weapp/goods-action-icon/index",
     "van-goods-action-button": "@vant/weapp/goods-action-button/index",
     "van-popup": "@vant/weapp/popup/index",
-    "i-stepper":"../../components/stepper/index"
+    "i-stepper":"@/components/stepper/index",
+    "select-address":"@/components/select-address/index"
   }
 }
 </script>

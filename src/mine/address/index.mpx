@@ -42,22 +42,18 @@
 </template>
 
 <script>
-import mpx, { createPage, ref, onShow } from '@mpxjs/core'
-import { customerAddressApi } from '@/api/customer'
+import mpx, { createPage, onShow } from '@mpxjs/core'
 import { useBasicDataStore } from '@/store/base'
+import { storeToRefs } from '@mpxjs/pinia'
 
 createPage({
   setup() {
     const basicData = useBasicDataStore()
-    const addressList = ref([])
-    const getAddressList = async () => {
-      const data = await customerAddressApi.findAll({
-        customer_id: basicData.customer.id
-      })
-      addressList.value = data
-    }
+    const { addressList } = storeToRefs(basicData)
 
-    onShow(getAddressList)
+    onShow(() => {
+      basicData.getAddressList()
+    })
 
     return {
       addressList

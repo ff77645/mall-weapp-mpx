@@ -90,7 +90,7 @@ createPage({
   setup() {
     // const basicData = storeToRefs(useBasicDataStore())
     const basicData = useBasicDataStore()
-    basicData.getCustomerInfo()
+    basicData.initBasicData()
 
     const getUserInfo = async () => {
       const data = await wx.getUserProfile({ desc: '创建会员' })

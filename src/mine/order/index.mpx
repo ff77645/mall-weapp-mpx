@@ -36,6 +36,7 @@ import { mallOrderApi } from '@/api/mall'
 import { mapState } from '@mpxjs/pinia'
 import { useBasicDataStore } from '@/store/base'
 import { ASSET_BASE_URL } from '@/config/index'
+import dayjs from 'dayjs'
 const tabList = [
   {
     title: '全部',
@@ -98,9 +99,12 @@ createPage({
     const res = await mallOrderApi.findAll(params)
     res.data.forEach(order => {
       order.products.forEach(i => {
-        // const imgUrl = getImageUrl()
         i.imgUrl = i.product ? getImageUrl(i.product.head_imgs) : ''
       })
+      order.created_date = dayjs(order.created_at).format('YYYY-MM-DD HH:mm:ss')
+      if (order.paymented_at) {
+        order.paymented_date = dayjs(order.paymented_at).format('YYYY-MM-DD HH:mm:ss')
+      }
     })
     console.log({ res })
     this.orderList = res.data

@@ -63,7 +63,7 @@ createPage({
     ],
     title: '11111'
   },
-  ...mapActions(useBasicDataStore, ['getCustomerInfo']),
+  ...mapActions(useBasicDataStore, ['initBasicData']),
   tapVideo() {
     console.log('tapVideo')
   },
@@ -106,7 +106,7 @@ createPage({
   },
   onLoad() {
     this.setTabBar()
-    this.getCustomerInfo()
+    this.initBasicData()
   }
 })
 </script>

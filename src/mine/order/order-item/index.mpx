@@ -36,8 +36,15 @@
         <text class="font-bold text-red-600 text-sm">￥{{order.sum_price / 100}}</text>
       </view>
     </view>
+    <!-- 单据信息 -->
     <view class="text-xs text-gray-700 mt-2 text-right">
       订单编号: {{order.bill_number}}
+    </view>
+    <view class="text-xs text-gray-700 mt-2 text-right">
+      创建时间: {{order.created_date}}
+    </view>
+    <view wx:if="{{order.paymented_at}}" class="text-xs text-gray-700 mt-2 text-right">
+      支付时间: {{order.paymented_date}}
     </view>
     <!-- 操作 -->
     <view class="flex flex-row flex-nowrap justify-end gap-3 mt-3">

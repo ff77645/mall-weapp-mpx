@@ -9,15 +9,7 @@
     scroll-y
   >
     <!-- 收货地址 -->
-    <view wx:if="{{!addressList.length}}" bind:tap="openAddressListPopup" class="flex bg-white p-4 justify-between items-center">
-      <view class="flex flex-row items-center">
-        <van-icon name="location" color="#ee0a24" size="14"/>
-        <text class="text-xs font-bold ml-2">请添加收货地址</text>
-      </view>
-      <van-icon name="arrow" color="#000" size="14"/>
-    </view>
-
-    <view wx:else bind:tap="openAddressListPopup" class="px-4 py-3 bg-white flex flex-col gap-1">
+    <view wx:if="{{currentAddress}}" bind:tap="openAddressListPopup" class="px-4 py-3 bg-white flex flex-col gap-1">
       <view class="text-xs text-gray-600">{{currentAddress.location}}</view>
       <view class="flex flex-nowrap justify-between gap-4">
         <text class="text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{currentAddress.address}}</text>
@@ -29,6 +21,13 @@
           <text class="ml-2">{{currentAddress.phone_number}}</text>
         </view>
       </view>
+    </view>
+    <view wx:else bind:tap="openAddressListPopup" class="flex bg-white p-4 justify-between items-center">
+      <view class="flex flex-row items-center">
+        <van-icon name="location" color="#ee0a24" size="14"/>
+        <text class="text-xs font-bold ml-2">请添加收货地址</text>
+      </view>
+      <van-icon name="arrow" color="#000" size="14"/>
     </view>
 
     <!-- 配送方式 -->
@@ -106,61 +105,27 @@
   />
   <view style="height:50px"></view>
   <view class="safe-area-inset-bottom"></view>
-
-  <!-- 切换收货地址 -->
-  <van-popup
-    show="{{ showAddressList }}"
-    position="bottom"
-    round
-    z-index="110"
-    custom-style="max-height: 60%"
-    bind:close="closeAddressListPopup"
-  >
-    <view class="p-4 bg-white">
-      <!-- header -->
-      <view class="flex flex-nowrap items-center justify-between">
-        <view></view>
-        <view class="text-sm font-bold">配送地址</view>
-        <view bind:tap="closeAddressListPopup" style="height:26px;width:26px;" class="rounded-full bg-slate-100 flex justify-center items-center">
-          <van-icon name="cross" size="16" color="#666" />
-        </view>
-      </view>
-      <!-- body -->
-      <view class="my-6 flex flex-col gap-3">
-        <address
-          wx:for="{{addressList}}"
-          wx:key="id"
-          address="{{item}}"
-          checked="{{currentAddress.id === item.id}}"
-          bind:select="selectAddress(index)"
-        ></address>
-      </view>
-      <!-- footer -->
-      <van-button bind:tap="addAddress" block round type="danger">新增收货地址</van-button>
-    </view>
-  </van-popup>
+  <select-address show="{{showAddressList}}" bind:close="closeAddressListPopup"></select-address>
 </template>
 
 <script>
 import mpx, { createPage } from '@mpxjs/core'
-import { customerAddressApi } from '@/api/customer'
 import { mallOrderApi } from '@/api/mall'
 import { mapState } from '@mpxjs/pinia'
 import { useBasicDataStore } from '@/store/base'
 
 createPage({
   data: {
-    addressList: [],
     showAddressList: false,
     productList: [],
-    currentAddress: {},
+    // currentAddress: {},
     freight: 0,
     describe: '',
     delivery_method: 0,
     payment_method: 0
   },
   computed: {
-    ...mapState(useBasicDataStore, ['customer']),
+    ...mapState(useBasicDataStore, ['customer', 'addressList', 'currentAddress']),
     totalPrice() {
       let val = 0
       this.productList.forEach(i => {
@@ -181,22 +146,9 @@ createPage({
     eventChannel.on('data', products => {
       this.productList = products
     })
-    this.getAddressList()
   },
   setExpressType(val) {
     this.delivery_method = +val
-  },
-  async getAddressList() {
-    const data = await customerAddressApi.findAll({
-      customer_id: this.customer.id
-    })
-    this.addressList = data
-    if (!data.length) return
-    this.currentAddress = data[0]
-  },
-  selectAddress(index) {
-    this.currentAddress = this.addressList[index]
-    this.showAddressList = false
   },
   openAddressListPopup() {
     this.showAddressList = true
@@ -204,11 +156,7 @@ createPage({
   closeAddressListPopup() {
     this.showAddressList = false
   },
-  addAddress() {
-    mpx.navigateTo({
-      url: '/mine/address-add/index'
-    })
-  },
+
   navBack() {
     mpx.navigateBack()
   },
@@ -216,11 +164,13 @@ createPage({
   async createMallOrder() {
     if (!this.currentAddress.id) return mpx.showToast({ title: '请选择收货地址', icon: 'none' })
 
+    // 地址信息
     const address = {
       ...this.currentAddress,
       customer_address_id: this.currentAddress.id
     }
 
+    // 单据商品
     const products = this.productList.map(p => {
       const total_price = p.number * p.retail_price
       const discount_amount = 0
@@ -235,6 +185,7 @@ createPage({
       }
     })
 
+    // 应付金额
     const sum_price = this.totalPrice + this.freight
     const billData = {
       address,
@@ -251,6 +202,7 @@ createPage({
     mpx.showLoading({
       title: '提交订单'
     })
+    // 创建订单
     const res = await mallOrderApi.create(billData)
     console.log({ res })
     if (!res.id) return mpx.hideLoading()
@@ -288,8 +240,9 @@ module.exports = {
     "van-submit-bar": "@vant/weapp/submit-bar/index",
     "van-popup": "@vant/weapp/popup/index",
     "product":"./product/index",
-    "address":"./address/index",
-    "van-divider": "@vant/weapp/divider/index"
+    // "address":"./address/index",
+    "van-divider": "@vant/weapp/divider/index",
+    "select-address":"@/components/select-address/index"
   }
 }
 </script>

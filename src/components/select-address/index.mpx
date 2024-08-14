@@ -1,0 +1,71 @@
+<template>
+  <van-popup
+    show="{{ show }}"
+    position="bottom"
+    round
+    z-index="110"
+    custom-style="max-height: 60%"
+    bind:close="closeAddressListPopup"
+  >
+    <view class="p-4 bg-white">
+      <!-- header -->
+      <view class="flex flex-nowrap items-center justify-between">
+        <view></view>
+        <view class="text-sm font-bold">配送地址</view>
+        <view bind:tap="closeAddressListPopup" style="height:26px;width:26px;" class="rounded-full bg-slate-100 flex justify-center items-center">
+          <van-icon name="cross" size="16" color="#666" />
+        </view>
+      </view>
+      <!-- body -->
+      <view class="my-6 flex flex-col gap-3">
+        <address
+          wx:for="{{addressList}}"
+          wx:key="id"
+          address="{{item}}"
+          checked="{{currentAddress.id === item.id}}"
+          bind:select="selectAddress(index)"
+        ></address>
+      </view>
+      <!-- footer -->
+      <van-button bind:tap="addAddress" block round type="danger">新增收货地址</van-button>
+    </view>
+  </van-popup>
+</template>
+<script>
+import mpx, { createComponent } from '@mpxjs/core'
+import { mapActions, mapState } from '@mpxjs/pinia'
+import { useBasicDataStore } from '@/store/base'
+createComponent({
+  properties: {
+    show: Boolean
+  },
+  computed: {
+    ...mapState(useBasicDataStore, ['addressList', 'currentAddress'])
+  },
+  methods: {
+    ...mapActions(useBasicDataStore, ['setCurrentAddress']),
+    selectAddress(index) {
+      // this.currentAddress = this.addressList[index]
+      this.setCurrentAddress(this.addressList[index])
+      // this.showAddressList = false
+      this.triggerEvent('close')
+    },
+    closeAddressListPopup() {
+      this.triggerEvent('close')
+    },
+    addAddress() {
+      mpx.navigateTo({
+        url: '/mine/address-add/index'
+      })
+    }
+  }
+})
+</script>
+<script name="json">
+module.exports = {
+  "usingComponents": {
+    "van-popup": "@vant/weapp/popup/index",
+    "address":"./address",
+  }
+}
+</script>
