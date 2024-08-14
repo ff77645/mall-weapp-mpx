@@ -199,6 +199,15 @@ createPage({
       number.value--
     }
 
+    const openGuideModel = (type) => {
+      popupActionType.value = type
+      showGuideModel.value = true
+    }
+
+    const closeGuideModel = () => {
+      showGuideModel.value = false
+    }
+
     // 组装商品规格
     const getProductGuides = () => {
       let _guides = ''
@@ -230,7 +239,7 @@ createPage({
         title: '添加成功',
         icon: 'success'
       })
-      showGuideModel.value = false
+      closeGuideModel()
     }
 
     // 查询商品规格
@@ -305,18 +314,8 @@ createPage({
       findGuides(opts.id)
     })
 
-    const openGuideModel = (type) => {
-      popupActionType.value = type
-      showGuideModel.value = true
-    }
-
-    const closeGuideModel = () => {
-      showGuideModel.value = false
-    }
-
     // 立即购买
     const clickBuyNow = () => {
-      console.log('clickBuyNow')
       const data = [{
         ...productInfo.value,
         number: number.value,
@@ -328,6 +327,7 @@ createPage({
           e.eventChannel.emit('data', data)
         }
       })
+      closeGuideModel()
     }
 
     // 选择规格确认

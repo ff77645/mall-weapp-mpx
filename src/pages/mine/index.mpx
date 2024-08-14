@@ -132,7 +132,6 @@ createPage({
   },
   navToOrder({ mark }) {
     const { type } = mark
-    console.log({ type })
     mpx.navigateTo({
       url: '/mine/order/index?type=' + type
     })

@@ -25,11 +25,11 @@
         </view>
       </view>
       <view slot="right" class="flex h-full items-stretch">
-        <view class="bg-yellow-500 flex flex-col justify-center items-center" style="width:65px;">
+        <view bind:tap="editAddress(index)" class="bg-yellow-500 flex flex-col justify-center items-center" style="width:65px;">
           <van-icon name="edit" size="16" color="#fff" />
           <text class="text-xs text-white">编辑</text>
         </view>
-        <view class="bg-red-500 flex flex-col justify-center items-center" style="width:65px;">
+        <view bind:tap="deleteAddress(index)" class="bg-red-500 flex flex-col justify-center items-center" style="width:65px;">
           <van-icon name="delete-o" size="16" color="#fff" />
           <text class="text-xs text-white">删除</text>
         </view>
@@ -42,21 +42,48 @@
 </template>
 
 <script>
-import mpx, { createPage, onShow } from '@mpxjs/core'
+import mpx, { createPage, onLoad } from '@mpxjs/core'
 import { useBasicDataStore } from '@/store/base'
 import { storeToRefs } from '@mpxjs/pinia'
+import { customerAddressApi } from '@/api/customer'
 
 createPage({
   setup() {
     const basicData = useBasicDataStore()
     const { addressList } = storeToRefs(basicData)
 
-    onShow(() => {
+    onLoad(() => {
       basicData.getAddressList()
     })
 
+    const deleteAddressConfirm = async address => {
+      await customerAddressApi.remove(address.id)
+      basicData.getAddressList()
+    }
+
+    const deleteAddress = index => {
+      mpx.showModal({
+        title: '删除地址',
+        content: '请确认是否删除当前地址?',
+        showCancel: true,
+        success({ confirm }) {
+          if (!confirm) return
+          deleteAddressConfirm(addressList.value[index])
+        }
+      })
+    }
+
+    const editAddress = index => {
+      const address = addressList.value[index]
+      mpx.navigateTo({
+        url: `/mine/address-add/index?id=${address.id}`
+      })
+    }
+
     return {
-      addressList
+      editAddress,
+      addressList,
+      deleteAddress
     }
   },
   addAddress() {

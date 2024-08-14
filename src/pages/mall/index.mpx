@@ -4,145 +4,104 @@
   />
   <view class="flex-1 bg-slate-100 flex flex-col overflow-hidden">
     <!-- 商品分类 -->
-    <!-- <scroll-view
-      class="flex-none"
-      scroll-x
-      scroll-with-animation
-      scroll-into-view="a{{activeIndex}}"
-    >
-      <view class="flex flex-nowrap p-2 gap-2">
-        <view
-          wx:for="{{categoryList}}"
-          wx:key="id"
-          data-id="{{item.id}}"
-          data-index="{{index}}"
-          class="flex flex-nowrap border-l-4 border-solid rounded-full {{ activeIndex === index ? 'bg-white border-red-500' : 'border-slate-50'}}"
-          bind:tap="changeCategory"
-          id="a{{index}}"
-        >
-          <view
-            data-id="{{item.id}}"
-            data-index="{{index}}"
-            class="py-3 text-center flex-1 text-xs"
-          >{{item.title}}</view>
-        </view>
-      </view>
-    </scroll-view> -->
-
+    <van-tabs active="{{ activeIndex }}" bind:click="clickTab">
+      <van-tab
+        wx:for="{{categoryList}}"
+        wx:key="id"
+        title="{{item.title}}"
+      ></van-tab>
+    </van-tabs>
     <!-- 商品列表 -->
     <scroll-view
       class="flex-1 group-list overflow-hidden"
       scroll-y
       scroll-with-animation
-      scroll-into-view="{{group_id}}"
+      scroll-into-view="c{{currentCategoryId}}"
     >
-      <!-- <view
-        class="group-item"
-        wx:for="{{groupList}}"
-        wx:key="id"
-        wx:for-item="group"
-        id="g{{group.id}}"
-        data-id="{{group.id}}"
-        data-index="{{index}}"
-        data-title="{{group.title}}"
-      > -->
-        <!-- <view class="px-2 group"> -->
-          <!-- 分类标题 -->
-          <!-- <view
-            class="category-title text-sm text-gray-500 sticky top-0 bg-slate-100 py-2" style="z-index: 100;"
-            data-title="{{group.title}}"
-            data-id="{{group.id}}"
-          >{{group.title}}</view> -->
-          <view class="grid grid-cols-2 gap-3 p-2">
-            <view
-              wx:for="{{productList}}"
-              wx:key="id"
-              class="bg-white rounded-md overflow-hidden flex-col flex"
-              bind:tap="navToProductDetail(item.id)"
-            >
-              <!-- 商品图片 -->
-              <image
-                src="{{ASSET_BASE_URL + item.url}}"
-                mode="aspectFill"
-                class="w-full flex-none"
-                lazy-load
-              />
-              <view class="p-2 flex-1 flex flex-col justify-between overflow-hidden self-stretch">
-                <view>
-                  <view class=" text-gray-900 van-multi-ellipsis--l2">{{item.title}}</view>
-                  <view class="text-gray-600 text-xs van-multi-ellipsis--l2">{{item.sub_title}}</view>
-                </view>
-                <view class="flex justify-between items-center">
-                  <view class="text-gray-500" style="font-size:10px;">已购1万</view>
-                  <view class="text-red-500 font-bold text-sm">￥{{item.retail_price / 100}}</view>
-                </view>
-              </view>
+      <view class="grid grid-cols-2 gap-3 p-2">
+        <view
+          wx:for="{{productList}}"
+          wx:key="id"
+          id="c{{item.active_id}}"
+          class="bg-white rounded-md overflow-hidden flex-col flex"
+          bind:tap="navToProductDetail(item.id)"
+        >
+          <!-- 商品图片 -->
+          <image
+            src="{{ASSET_BASE_URL + item.url}}"
+            mode="aspectFill"
+            class="w-full flex-none"
+            lazy-load
+          />
+          <view class="p-2 flex-1 flex flex-col justify-between overflow-hidden self-stretch">
+            <view>
+              <view class=" text-gray-900 van-multi-ellipsis--l2">{{item.title}}</view>
+              <view class="text-gray-600 text-xs van-multi-ellipsis--l2">{{item.sub_title}}</view>
+            </view>
+            <view class="flex justify-between items-center">
+              <view class="text-gray-500" style="font-size:10px;">已购1万</view>
+              <view class="text-red-500 font-bold text-sm">￥{{item.retail_price / 100}}</view>
             </view>
           </view>
-        <!-- </view> -->
-      <!-- </view> -->
+        </view>
+      </view>
     </scroll-view>
   </view>
   <view style="height:calc(50px + env(safe-area-inset-bottom));"></view>
 </template>
 
 <script>
-import mpx, { createPage, ref, onLoad, getCurrentInstance } from '@mpxjs/core'
+import mpx, { createPage } from '@mpxjs/core'
 import {
-  productApi
-  // productCategoryApi
+  productApi,
+  productCategoryApi
 } from '@/api/product'
 import { ASSET_BASE_URL } from '@/config/index'
 
 createPage({
   data: {
+    productList: [],
+    ASSET_BASE_URL,
     categoryList: [],
-    groupList: [],
-    group_id: '',
     activeIndex: 0,
-    checkedGoods: [],
-    checkedNumber: 0,
-    priceSum: 0,
-    showCheckedGoods: false,
-    guides: [],
-    showGuideModel: false,
-    scrollTop: 0
+    scrollTop: 0,
+    currentCategoryId: ''
   },
-  setup() {
-    const productList = ref([])
-    // 初始化页面数据
-    const initData = async () => {
-      mpx.showLoading({ title: '加载中' })
-      const res = await productApi.findAll({ page: 1, limit: 100 })
-      console.log({ res })
-      res.data.forEach(item => {
-        const images = item.head_imgs ? JSON.parse(item.head_imgs) : []
-        item.url = images.length ? images[0].url : ''
-      })
-      productList.value = res.data
-      mpx.hideLoading()
-    }
-
-    const setTabbar = () => {
-      const { target } = getCurrentInstance()
-      if (target && typeof target.getTabBar === 'function') {
-        target.getTabBar((tabBar) => {
-          tabBar.setData({
-            active: 'mall'
-          })
-        })
-      }
-    }
-
-    onLoad(() => {
-      initData()
-      setTabbar()
+  onLoad() {
+    this.setTabBar()
+    // this.initProductList()
+    this.initCategoryList()
+  },
+  async initProductList() {
+    mpx.showLoading({ title: '加载中' })
+    const res = await productApi.findAll({ page: 1, limit: 100 })
+    console.log({ res })
+    const ids = []
+    const data = []
+    this.categoryList.forEach(category => {
+      const d = res.data.filter(i => i.category_id === category.id)
+      data.push(...d)
     })
-
-    return {
-      productList,
-      ASSET_BASE_URL
-    }
+    data.forEach(item => {
+      const images = item.head_imgs ? JSON.parse(item.head_imgs) : []
+      item.url = images.length ? images[0].url : ''
+      if (!ids.includes(item.category_id)) {
+        item.active_id = item.category_id
+        ids.push(item.category_id)
+      }
+    })
+    this.productList = data
+    mpx.hideLoading()
+  },
+  async initCategoryList() {
+    const res = await productCategoryApi.findAll()
+    console.log({ res })
+    this.categoryList = res
+    this.initProductList()
+  },
+  clickTab({ detail: { index } }) {
+    this.activeIndex = index
+    this.currentCategoryId = this.categoryList[index].id
   },
   // 节流时间
   throttleTime: 600,
@@ -268,23 +227,19 @@ createPage({
       })
     }
   },
-  onLoad() {
-    // this.setTabBar()
-    // this.initDataFn()
 
-    // setTimeout(() => {
-    // this.initAnimateOrder()
-    // this.getScrollListTop()
-    // this.getCategoryTitleTop()
-    // }, 300)
-  },
   navToProductDetail(id) {
     wx.navigateTo({
       url: '/pages/product-detail/index?id=' + id
     })
-  },
-  navBack() {
-    wx.navigateBack()
   }
 })
+</script>
+<script name="json">
+  module.exports = {
+    usingComponents:{
+      "van-tab": "@vant/weapp/tab/index",
+      "van-tabs": "@vant/weapp/tabs/index"
+    }
+  }
 </script>

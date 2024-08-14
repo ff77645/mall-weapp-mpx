@@ -11,12 +11,12 @@
         <view class="text-xs text-gray-600 mt-2">{{address.user_name}} {{address.phone_number}}</view>
       </view>
     </view>
-    <van-icon name="edit" color="#666" size="22" />
+    <van-icon bind:tap="editAddress" name="edit" color="#666" size="22" />
   </view>
 </template>
 
 <script>
-import { createComponent } from '@mpxjs/core'
+import mpx, { createComponent } from '@mpxjs/core'
 
 createComponent({
   properties: {
@@ -26,6 +26,11 @@ createComponent({
   methods: {
     changeChecked() {
       this.triggerEvent('select')
+    },
+    editAddress() {
+      mpx.navigateTo({
+        url: `/mine/address-add/index?id=${this.address.id}`
+      })
     }
   }
 })

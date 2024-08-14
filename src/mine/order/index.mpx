@@ -7,7 +7,7 @@
   <view class="bg-white">
     <van-tabs
       active="{{ tabIndex }}"
-      bind:change="changeTag"
+      bind:click="clickTab"
     >
       <van-tab
         wx:for="{{tabList}}"
@@ -82,7 +82,9 @@ createPage({
   computed: {
     ...mapState(useBasicDataStore, ['customer'])
   },
-  changeTag({ detail }) {
+  clickTab({ detail }) {
+    console.log('clickTab', detail)
+
     const { index } = detail
     this.status = tabList[index].status
     this.findData()
@@ -111,7 +113,7 @@ createPage({
   },
   onLoad({ type }) {
     console.log({ type })
-    this.status = tabList[type].status
+    this.status = tabList[type].status || ''
     this.setData({
       tabIndex: +type
     })

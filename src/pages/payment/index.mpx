@@ -106,6 +106,7 @@
   <view style="height:50px"></view>
   <view class="safe-area-inset-bottom"></view>
   <select-address show="{{showAddressList}}" bind:close="closeAddressListPopup"></select-address>
+  <result-model show="{{showResultModel}}"></result-model>
 </template>
 
 <script>
@@ -122,7 +123,8 @@ createPage({
     freight: 0,
     describe: '',
     delivery_method: 0,
-    payment_method: 0
+    payment_method: 0,
+    showResultModel: false
   },
   computed: {
     ...mapState(useBasicDataStore, ['customer', 'addressList', 'currentAddress']),
@@ -222,6 +224,7 @@ createPage({
       payment_method: this.payment_method
     })
     mpx.showToast({ title: '下单成功', icon: 'none' })
+    this.showResultModel = true
   },
   onSubmit() {
     this.createMallOrder()
@@ -242,7 +245,8 @@ module.exports = {
     "product":"./product/index",
     // "address":"./address/index",
     "van-divider": "@vant/weapp/divider/index",
-    "select-address":"@/components/select-address/index"
+    "select-address":"@/components/select-address/index",
+    "result-model":"./result-model"
   }
 }
 </script>

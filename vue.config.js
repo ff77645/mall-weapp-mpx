@@ -6,6 +6,7 @@ module.exports = defineConfig({
   pluginOptions: {
     mpx: {
       plugin: {
+        optimizeSize: true,
         defs: {
           __env__: process.env.NODE_ENV
         },

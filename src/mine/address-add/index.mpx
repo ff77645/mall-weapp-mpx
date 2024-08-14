@@ -1,6 +1,6 @@
 <template>
   <van-nav-bar
-  title="新增收货地址"
+  title="{{navBarTitle}}"
   left-arrow
   bind:click-left="navBack"
 />
@@ -20,7 +20,7 @@
     <view class="py-4 flex items-center text-xs">
       <view class="text-xs w-20">所在地区</view>
       <view bind:tap="toggleLocationPopup" class="flex items-center justify-between flex-1">
-        <input value="{{location}}" type="text" disabled placeholder="省市区县乡镇等"/>
+        <input class="flex-1" value="{{location}}" type="text" disabled placeholder="省市区县乡镇等"/>
         <van-icon name="arrow" size="14" color="#666" />
       </view>
     </view>
@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import mpx, { computed, createPage, ref } from '@mpxjs/core'
+import mpx, { computed, createPage, ref, onLoad } from '@mpxjs/core'
 import { customerAddressApi } from '@/api/customer'
 import { useBasicDataStore } from '@/store/base'
 import { areaList } from '@vant/area-data'
@@ -86,6 +86,7 @@ createPage({
     const phone_number = ref('')
     const address = ref('')
     const location = ref('')
+    let currentAddressId = ''
 
     const noDisabled = computed(() => {
       return user_name.value && phone_number.value && location.value && address.value.length > 4
@@ -116,9 +117,8 @@ createPage({
       showLocationPopup.value = false
     }
 
-    const createAddress = async () => {
-      mpx.showLoading({ title: '创建中' })
-      const data = {
+    const getData = () => {
+      return {
         customer_id: basicData.customer.id,
         area_code: +areaCode.value,
         location: location.value,
@@ -127,16 +127,54 @@ createPage({
         phone_number: phone_number.value,
         is_default: isDefault.value
       }
+    }
+
+    const createAddress = async () => {
+      mpx.showLoading({ title: '创建中' })
+      const data = getData()
       await customerAddressApi.create(data)
+    }
+
+    const updateAddress = async () => {
+      mpx.showLoading({ title: '更新中' })
+      const data = getData()
+      await customerAddressApi.update(currentAddressId, data)
+    }
+
+    const onSubmit = async () => {
+      if (currentAddressId) {
+        await updateAddress()
+      } else {
+        await createAddress()
+      }
+      await basicData.getAddressList()
       mpx.hideLoading()
       mpx.navigateBack()
     }
-
-    const onSubmit = () => {
-      createAddress()
+    const navBarTitle = ref('')
+    const initEditData = id => {
+      currentAddressId = id
+      const data = basicData.addressList.find(i => i.id === id)
+      user_name.value = data.user_name
+      phone_number.value = data.phone_number
+      address.value = data.address
+      location.value = data.location
+      areaCode.value = data.area_code
+      isDefault.value = data.is_default
+      _areaCode = data.area_code
+      _areaString = data.location
     }
+    onLoad(({ id }) => {
+      if (id) {
+        initEditData(id)
+        navBarTitle.value = '编辑地址'
+      } else {
+        navBarTitle.value = '新增地址'
+      }
+    })
 
     return {
+      navBarTitle,
       onSubmit,
       address,
       phone_number,
