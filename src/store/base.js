@@ -2,7 +2,7 @@ import { defineStore } from '@mpxjs/pinia'
 import { customerApi, customerAddressApi } from '@/api/customer'
 import mpx from '@mpxjs/core'
 
-export const useBasicDataStore = defineStore('base', {
+export const useBasicDataStore = defineStore('basic', {
   state: () => {
     return {
       firstName: '',

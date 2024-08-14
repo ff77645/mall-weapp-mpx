@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { createPage } from '@mpxjs/core'
+import mpx, { createPage } from '@mpxjs/core'
 import { mallOrderApi } from '@/api/mall'
 import { mapState } from '@mpxjs/pinia'
 import { useBasicDataStore } from '@/store/base'
@@ -120,7 +120,7 @@ createPage({
     this.findData()
   },
   navBack() {
-    wx.navigateBack()
+    mpx.navigateBack()
   }
 })
 </script>

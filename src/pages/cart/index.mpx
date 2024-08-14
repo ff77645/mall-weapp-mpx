@@ -14,10 +14,7 @@
   >
     <van-swipe-cell wx:for="{{productList}}" wx:key="id" right-width="{{ 65 }}">
       <product
-        product="{{item.product}}"
-        number="{{item.number}}"
-        checked="{{item.checked}}"
-        guides="{{item.guides}}"
+        item="{{item}}"
         bind:select-checked="selectChecked(index,$event)"
         bind:change-number="changeGoodsNumber(index,$event)"
       ></product>

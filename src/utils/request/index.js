@@ -1,5 +1,8 @@
 import { RequestCache } from '../request-cache'
 import mpx from '@mpxjs/core'
+import mpxFetch from '@mpxjs/fetch'
+
+mpx.use(mpxFetch)
 
 // eslint-disable-next-line no-undef
 const env = __env__
@@ -43,7 +46,7 @@ export function request(opts) {
         cacheStore.removeRequest(hash)
       }
     }, opts)
-    wx.request(options)
+    mpx.xfetch.fetch(options)
   })
 }
 

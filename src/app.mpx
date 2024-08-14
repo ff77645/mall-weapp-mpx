@@ -2,7 +2,9 @@
 import mpx, { createApp } from '@mpxjs/core'
 import apiProxy from '@mpxjs/api-proxy'
 import { createPinia } from '@mpxjs/pinia'
+// import mpxFetch from '@mpxjs/fetch'
 
+// mpx.use(mpxFetch)
 mpx.use(apiProxy, { usePromise: true })
 const pinia = createPinia()
 createApp({

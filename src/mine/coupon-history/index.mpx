@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { createPage } from '@mpxjs/core'
+import mpx, { createPage } from '@mpxjs/core'
 
 const tabList = [
   {
@@ -43,7 +43,7 @@ createPage({
     tabActive: 0
   },
   navBack() {
-    wx.navigateBack()
+    mpx.navigateBack()
   }
 })
 </script>

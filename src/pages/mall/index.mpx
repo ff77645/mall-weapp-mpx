@@ -17,13 +17,14 @@
       scroll-y
       scroll-with-animation
       scroll-into-view="c{{currentCategoryId}}"
+      bind:scroll="handleScroll"
     >
       <view class="grid grid-cols-2 gap-3 p-2">
         <view
           wx:for="{{productList}}"
           wx:key="id"
           id="c{{item.active_id}}"
-          class="bg-white rounded-md overflow-hidden flex-col flex"
+          class="bg-white rounded-md overflow-hidden flex-col flex product"
           bind:tap="navToProductDetail(item.id)"
         >
           <!-- 商品图片 -->
@@ -71,6 +72,7 @@ createPage({
     this.setTabBar()
     // this.initProductList()
     this.initCategoryList()
+    this.getScrollListTop()
   },
   async initProductList() {
     mpx.showLoading({ title: '加载中' })
@@ -92,6 +94,9 @@ createPage({
     })
     this.productList = data
     mpx.hideLoading()
+    setTimeout(() => {
+      this.getCategoryTitleTop()
+    }, 100)
   },
   async initCategoryList() {
     const res = await productCategoryApi.findAll()
@@ -122,18 +127,28 @@ createPage({
       })
       .exec()
   },
+  handleScroll({ detail: { scrollTop } }) {
+    const index = this.categoryList.findIndex(i => i.top >= scrollTop)
+    this.activeIndex = index
+  },
   getCategoryTitleTop() {
     this.createSelectorQuery()
-      .selectAll('.category-title')
+      .selectAll('.product')
       .boundingClientRect((res) => {
         console.log({ res })
-        const { categoryList } = this.data
-        categoryList.forEach((item, index) => {
-          item.top = res[index].top - this.scrollListTop
-          const next = res[index + 1]
-          item.bottom = next ? (next.top - this.scrollListTop) : item.top + 20
+        res.forEach(i => {
+          if (i.id.length < 2) return
+          const id = i.id.slice(1)
+          const index = this.categoryList.findIndex(i => i.id === id)
+          this.categoryList[index].top = i.top - this.scrollListTop
         })
-        this.setData({ categoryList })
+        // const { categoryList } = this.data
+        // categoryList.forEach((item, index) => {
+        //   item.top = res[index].top - this.scrollListTop
+        //   const next = res[index + 1]
+        //   item.bottom = next ? (next.top - this.scrollListTop) : item.top + 20
+        // })
+        // this.setData({ categoryList })
       })
       .exec()
   },
@@ -229,7 +244,7 @@ createPage({
   },
 
   navToProductDetail(id) {
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/pages/product-detail/index?id=' + id
     })
   }

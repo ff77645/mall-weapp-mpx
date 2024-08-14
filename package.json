@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "mpx-cli-service serve",
     "build": "mpx-cli-service build",
+    "build:web":"mpx-cli-service build --targets=web",
     "lint": "eslint --ext .js,.ts,.mpx src/"
   },
   "dependencies": {

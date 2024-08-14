@@ -93,7 +93,7 @@ createPage({
     basicData.initBasicData()
 
     const getUserInfo = async () => {
-      const data = await wx.getUserProfile({ desc: '创建会员' })
+      const data = await mpx.getUserProfile({ desc: '创建会员' })
       if (!data.errMsg.endsWith('ok')) return
       const userInfo = data.userInfo
       console.log({ userInfo })

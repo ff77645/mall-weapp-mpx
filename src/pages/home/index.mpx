@@ -50,7 +50,7 @@
   <view style="height:calc(50px + env(safe-area-inset-bottom));"></view>
 </template>
 <script>
-import { createPage } from '@mpxjs/core'
+import mpx, { createPage } from '@mpxjs/core'
 import { useBasicDataStore } from '@/store/base'
 import { mapActions } from '@mpxjs/pinia'
 
@@ -78,7 +78,7 @@ createPage({
   async navToOrder() {
     this.setData({ title: '6666666' })
     // if (!this.data.openid) await this.getCustomerInfo()
-    // wx.navigateTo({
+    // mpx.navigateTo({
     //   url: '/pages/order/index'
     // })
   },
@@ -92,17 +92,17 @@ createPage({
     }
   },
   navToReserve() {
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/pages/reserve/index'
     })
   },
   navToQueue() {
-    wx.navigateTo({
+    mpx.navigateTo({
       url: '/pages/queue/index'
     })
   },
   navBack() {
-    wx.navigateBack()
+    mpx.navigateBack()
   },
   onLoad() {
     this.setTabBar()

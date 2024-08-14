@@ -184,10 +184,9 @@ createPage({
     const { currentAddress } = storeToRefs(basicData)
     const instance = getCurrentInstance()
 
-    const menuRect = wx.getMenuButtonBoundingClientRect()
+    const menuRect = mpx.getMenuButtonBoundingClientRect()
     const windowInfo = wx.getWindowInfo()
     const menuButtonLeft = windowInfo.windowWidth - menuRect.left
-
     const popupActionType = ref('')
 
     const number = ref(1)
@@ -321,7 +320,7 @@ createPage({
         number: number.value,
         guides: getProductGuides()
       }]
-      wx.navigateTo({
+      mpx.navigateTo({
         url: '/pages/payment/index',
         success(e) {
           e.eventChannel.emit('data', data)
@@ -336,7 +335,7 @@ createPage({
     }
 
     const navBack = () => {
-      wx.navigateBack()
+      mpx.navigateBack()
     }
 
     const bindready = (e) => {
