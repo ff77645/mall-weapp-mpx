@@ -1,0 +1,66 @@
+<template>
+  <view class="m-4 bg-white rounded-md p-2">
+    <view class="flex items-center justify-between">
+      <view class="flex items-center">
+        <view class="mr-2" style="background:linear-gradient(to top, rgb(255, 96, 52), rgb(238, 10, 36));width:2px;height:14px;"></view>
+        <text class="text-xs font-bold">食谱</text>
+      </view>
+      <view class="text-gray-500 flex items-center" style="font-size:12px;">
+        <text>查看更多</text>
+        <van-icon name="arrow"></van-icon>
+      </view>
+    </view>
+    <scroll-view
+      scroll-x
+      enable-flex
+      class="flex rounded-md overflow-hidden mt-2 flex-none flex-row"
+      style="height:105px;"
+    >
+      <view class="flex flex-nowrap gap-3">
+        <view
+          wx:for="{{dataList}}"
+          wx:key="index"
+          style="width:80px;"
+        >
+          <image style="height:80px;" class="w-full h-full rounded-md" mode="aspectFill" src="{{item.image}}"></image>
+          <view class="text-center whitespace-nowrap text-ellipsis overflow-hidden" style="font-size:12px;">{{item.title}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  data: {
+    dataList: [
+      {
+        title: '香芹爆炒香猪',
+        image: 'https://pic.baike.soso.com/ugc/baikepic2/19661/20181010234657-1366611231_png_437_362_384564.jpg/300'
+      },
+      {
+        title: '自切香猪',
+        image: 'https://pic.baike.soso.com/ugc/baikepic2/5183/cut-20181018142602-273327359_jpg_394_295_17185.jpg/300'
+      },
+      {
+        title: '香禾糯香猪粉蒸肉',
+        image: 'https://pic.baike.soso.com/ugc/baikepic2/12367/20220321125056-1169248042_png_520_476_346024.jpg/0'
+      },
+      {
+        title: '蒜仔红烧香猪',
+        image: 'https://pic.baike.soso.com/ugc/baikepic2/0/ori-20230314134423-407116898_jpeg_700_700_58331.jpg/800'
+      },
+      {
+        title: '香禾糯香猪粉蒸肉',
+        image: 'https://pic.baike.soso.com/ugc/baikepic2/12367/20220321125056-1169248042_png_520_476_346024.jpg/0'
+      },
+      {
+        title: '蒜仔红烧香猪',
+        image: 'https://pic.baike.soso.com/ugc/baikepic2/0/ori-20230314134423-407116898_jpeg_700_700_58331.jpg/800'
+      }
+    ]
+  }
+})
+</script>

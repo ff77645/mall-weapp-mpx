@@ -1,0 +1,36 @@
+<template>
+  <view bind:tap="navToRecipesDetail" class="mx-3 my-2 flex flex-nowrap overflow-hidden bg-white p-2 rounded-md">
+    <image
+      style="height:80px;width:80px;"
+      mode="aspectFill"
+      class="rounded-md mr-2 flex-none"
+      src="https://pic.baike.soso.com/ugc/baikepic2/19661/20181010234657-1366611231_png_437_362_384564.jpg/300"
+    ></image>
+    <view class="flex-1 text-xs flex flex-col justify-around">
+      <view class="font-bold line-clamp-1">香芹爆炒香猪</view>
+      <view class="line-clamp-2" style="font-size:12px;">
+        用料:五花肉、油菜、生姜、蒜、葱、盐、冰糖、八角、香叶、料酒、老抽、鸡粉、生抽、味精、红曲米、老抽
+      </view>
+      <view style="font-size:12px;" class="flex flex-nowrap ">
+        <text class="line-clamp-1 mr-4">133455浏览</text>
+        <text class="line-clamp-1 ">133455收藏</text>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+import mpx, { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    item: Object
+  },
+  methods: {
+    navToRecipesDetail() {
+      mpx.navigateTo({
+        url: '/pages/recipes-detail/index'
+      })
+    }
+  }
+})
+</script>

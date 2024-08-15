@@ -8,7 +8,7 @@
   >
 
       <!-- autoplay -->
-    <video
+    <!-- <video
       class="w-full"
       loop
       enable-play-gesture
@@ -23,7 +23,7 @@
       object-fit="cover"
       src="https://uvd.yupoo.com/isfy666/22823576.mp4"
       bind:tap="tapVideo"
-    ></video>
+    ></video> -->
     <!-- 轮播 -->
     <swiper indicator-dots class="" style="height: 280px;">
       <swiper-item wx:for="{{swiperList}}" wx:key="*this">
@@ -32,17 +32,17 @@
     </swiper>
 
     <!-- 导航 -->
-    <view class="m-4 rounded-md flex flex-wrap gap-4">
-      <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3" style="min-width:40%;">
-        <text>认养</text>
+    <view class="m-4 rounded-md grid grid-cols-2 gap-3">
+      <view bind:tap="navToRecipes" class="bg-white flex-1 rounded-md p-3">
+        <text>食谱</text>
       </view>
-      <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3" style="min-width:40%;">
+      <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3">
         <text>拼猪</text>
       </view>
       <view
         bind:touchstart="touchstart"
         bind:touchMove="touchMove"
-        class="bg-white flex-1 rounded-md p-3" style="min-width:40%;">
+        class="bg-white flex-1 rounded-md p-3">
         <text>认养计划</text>
       </view>
     </view>
@@ -64,6 +64,11 @@ createPage({
     title: '11111'
   },
   ...mapActions(useBasicDataStore, ['initBasicData']),
+  navToRecipes() {
+    mpx.navigateTo({
+      url: '/pages/recipes/index'
+    })
+  },
   tapVideo() {
     console.log('tapVideo')
   },

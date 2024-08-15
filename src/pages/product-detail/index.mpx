@@ -26,13 +26,19 @@
 
   <!-- 商品信息 -->
   <view class="m-3 py-3 px-2 bg-white rounded-md">
-    <view class="flex items-center">
-      <view class="flex text-red-600 items-center">
-        <text class="text-xs font-bold pt-2px">￥</text>
-        <text class="text-lg font-bold">{{productPrice / 100}}</text>
-        <text class="text-xs pt-2px ml-2px"> 起</text>
+    <view class="flex items-center justify-between">
+      <view class="flex items-center">
+        <view class="flex text-red-600 items-center">
+          <text class="text-xs font-bold pt-2px">￥</text>
+          <text class="text-lg font-bold">{{productPrice / 100}}</text>
+          <text class="text-xs pt-2px ml-2px"> 起</text>
+        </view>
+        <view class="text-gray-600 line-through text-xs ml-1">￥59起</view>
       </view>
-      <view class="text-gray-600 line-through text-xs ml-1">￥59起</view>
+      <view class="text-gray-600" style="font-size:12px;">
+        <text wx:if="{{inventorys > 0}}">库存 {{inventorys}} {{productInfo.unit || ''}}</text>
+        <text wx:else>暂无库存</text>
+      </view>
     </view>
     <view class="flex text-sm font-bold mt-2">
       {{productInfo.title}}
@@ -75,10 +81,13 @@
     </view> -->
   </view>
 
+  <!-- 食谱 -->
+   <recipes-block></recipes-block>
+
   <!-- 商品详情 -->
   <view class="m-3 rounded-md bg-white p-2">
     <view class="flex items-center">
-      <view class="mr-2" style="background:linear-gradient(to top, rgb(255, 96, 52), rgb(238, 10, 36));width:2px;height:70%;"></view>
+      <view class="mr-2" style="background:linear-gradient(to top, rgb(255, 96, 52), rgb(238, 10, 36));width:2px;height:14px;"></view>
       <text class="text-xs font-bold">商品详情</text>
     </view>
     <view class="mt-2" style="min-height:300px;">
@@ -163,14 +172,14 @@
 <script>
 import mpx, { createPage, onLoad, ref, getCurrentInstance } from '@mpxjs/core'
 import {
-  productApi,
-  productGuideApi
+  productApi
   // mallCartApi
 } from '@/api/product'
 import { mallCartApi } from '@/api/mall'
 import { ASSET_BASE_URL } from '@/config/index'
 import { useBasicDataStore } from '@/store/base'
 import { storeToRefs } from '@mpxjs/pinia'
+import Big from 'big.js'
 
 createPage({
   setup() {
@@ -242,15 +251,13 @@ createPage({
     }
 
     // 查询商品规格
-    const findGuides = async (id) => {
-      const res = await productGuideApi.findAll({ id })
-      console.log('findGuides', res)
-      res.forEach(guide => {
+    const initGuides = data => {
+      data.forEach(guide => {
         guide.children.forEach((item, index) => {
           item.checked = index === 0
         })
       })
-      guides.value = res
+      guides.value = data
     }
 
     // 选择规格
@@ -292,6 +299,14 @@ createPage({
       }).exec()
     }
 
+    const inventorys = ref('')
+    const initInventorys = data => {
+      const num = data.reduce((big, item) => {
+        return big.plus(item.quantity)
+      }, Big(0)).toNumber()
+      inventorys.value = num
+    }
+
     // 初始化数据
     const initData = async (id) => {
       const res = await productApi.findOne(id)
@@ -302,6 +317,9 @@ createPage({
       swiperList.value = head_imgs
       productInfo.value = res
       productPrice.value = res.retail_price
+      console.log('initData', { res })
+      initGuides(res.guides)
+      initInventorys(res.inventorys || [])
       const detail = res.detail ? JSON.parse(res.detail) : []
       if (detail.length) {
         setEditorContent(detail)
@@ -310,7 +328,7 @@ createPage({
 
     onLoad((opts) => {
       initData(opts.id)
-      findGuides(opts.id)
+      // findGuides(opts.id)
     })
 
     // 立即购买
@@ -362,6 +380,7 @@ createPage({
     }
 
     return {
+      inventorys,
       closeAddressListPopup,
       openAddressListPopup,
       showAddressList,
@@ -412,7 +431,8 @@ module.exports = {
     "van-goods-action-button": "@vant/weapp/goods-action-button/index",
     "van-popup": "@vant/weapp/popup/index",
     "i-stepper":"@/components/stepper/index",
-    "select-address":"@/components/select-address/index"
+    "select-address":"@/components/select-address/index",
+    "recipes-block":"./recipes-block"
   }
 }
 </script>

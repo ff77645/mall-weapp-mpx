@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "mpx-cli-service serve",
     "build": "mpx-cli-service build",
-    "build:web":"mpx-cli-service build --targets=web",
+    "build:web": "mpx-cli-service build --targets=web",
     "lint": "eslint --ext .js,.ts,.mpx src/"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
     "@mpxjs/utils": "^2.9.50",
     "@vant/area-data": "^1.5.1",
     "@vant/weapp": "^1.11.6",
+    "big.js": "^6.2.1",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.12",
     "i-constants": "^1.0.0",

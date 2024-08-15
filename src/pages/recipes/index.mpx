@@ -1,0 +1,66 @@
+<template>
+  <van-nav-bar
+    title="食谱"
+  />
+  <view class="scrollable flex flex-nowrap overflow-hidden">
+    <!-- 分类 -->
+    <van-sidebar active-key="{{ activeKey }}" class="h-full " style="background-color:var(--sidebar-background-color,#f7f8fa);">
+      <van-sidebar-item
+        wx:for="{{categoryList}}"
+        wx:key="id"
+        title="{{item.title}}"
+      />
+    </van-sidebar>
+    <scroll-view
+      scroll-y
+      class="h-full"
+    >
+      <view style="height:1px;"></view>
+      <recipes-item></recipes-item>
+      <view style="height:1px;"></view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+import { createPage } from '@mpxjs/core'
+import {
+  productCategoryApi
+} from '@/api/product'
+
+createPage({
+  data: {
+    categoryList: [],
+    recipesList: []
+  },
+  onLoad() {
+    this.initCategoryList()
+  },
+  async getRecipesData() {
+    this.recipesList = [
+      {
+        title: '红烧肉',
+        effect: '养血,理气、止痛、温阳,升压',
+        ingredients: '五花肉、油菜、生姜、蒜、葱、盐、冰糖、八角、香叶、料酒、老抽、鸡粉、生抽、味精、红曲米、老抽',
+        content: ''
+      }
+    ]
+  },
+  async initCategoryList() {
+    const res = await productCategoryApi.findAll()
+    this.categoryList = res
+  }
+})
+</script>
+
+<script name="json">
+
+module.exports = {
+  "usingComponents": {
+    "van-sidebar": "@vant/weapp/sidebar/index",
+    "van-sidebar-item": "@vant/weapp/sidebar-item/index",
+    "recipes-item":"./recipes-item"
+  }
+
+}
+</script>

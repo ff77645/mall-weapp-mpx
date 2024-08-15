@@ -76,7 +76,7 @@ createPage({
   },
   async initProductList() {
     mpx.showLoading({ title: '加载中' })
-    const res = await productApi.findAll({ page: 1, limit: 100 })
+    const res = await productApi.findAll({ page: 1, limit: 100, warehouse_id: 'all' })
     console.log({ res })
     const ids = []
     const data = []
@@ -122,7 +122,6 @@ createPage({
     this.createSelectorQuery()
       .select('.group-list')
       .boundingClientRect(res => {
-        console.log('getScrollListTop', res)
         this.scrollListTop = res.top
       })
       .exec()
@@ -135,20 +134,12 @@ createPage({
     this.createSelectorQuery()
       .selectAll('.product')
       .boundingClientRect((res) => {
-        console.log({ res })
         res.forEach(i => {
           if (i.id.length < 2) return
           const id = i.id.slice(1)
           const index = this.categoryList.findIndex(i => i.id === id)
           this.categoryList[index].top = i.top - this.scrollListTop
         })
-        // const { categoryList } = this.data
-        // categoryList.forEach((item, index) => {
-        //   item.top = res[index].top - this.scrollListTop
-        //   const next = res[index + 1]
-        //   item.bottom = next ? (next.top - this.scrollListTop) : item.top + 20
-        // })
-        // this.setData({ categoryList })
       })
       .exec()
   },
@@ -158,80 +149,6 @@ createPage({
     })
     if (index === this.data.activeIndex) return
     this.setData({ activeIndex: index })
-  },
-  // 初始化分类与商品数据
-  async initDataFn() {
-    // const [
-    //   productCategory,
-    //   productRes,
-    //   packageCategory,
-    //   packages,
-    // ] = await Promise.all([
-    //   getAllProductCategory(),
-    //   getAllProduct({page:1,limit:1000}),
-    //   packageCategoryApi.findAll(),
-    //   packageApi.findAll({page:1,limit:100}),
-    // ])
-    // // console.log({packages,packageCategory});
-    // console.log({productRes});
-
-    // const categoryList = [...packageCategory,...productCategory]
-    // categoryList.forEach(i=>{i.number = 0})
-
-    // packages.data.forEach(i=>{
-    //   i.type = 'package'
-    //   i.groups = JSON.parse(i.groups)
-    //   i.has_guide = i.groups.length && i.groups.some(i=>i.total !== i.optional)
-    // })
-    // const allProducts = [...packages.data,...productRes.data]
-    // allProducts.forEach(i=>{
-    //   i.unit_price = i.retail_price
-    //   i.number = 0
-    // })
-    // const groupList = categoryList.map(item=>{
-    //   return {
-    //     title:item.title,
-    //     id:item.id,
-    //     children:allProducts.filter(i=>i.category_id === item.id)
-    //   }
-    // })
-    // console.log({groupList});
-    const categoryList = [
-      {
-        title: '跑跑鸡',
-        id: 'ppj'
-      },
-      {
-        title: '跳跳兔',
-        id: 'ttt'
-      },
-      {
-        title: '奔奔猪',
-        id: 'bbz'
-      }
-    ]
-
-    const groupList = categoryList.map(item => {
-      return {
-        title: item.title,
-        id: item.id,
-        children: Array.from({ length: 3 }).map((_, idx) => {
-          return {
-            id: item.id + idx,
-            title: item.title + idx,
-            unit_price: 1000 * idx,
-            describe: 'describedescribedescribedescribedescribe'
-          }
-        })
-      }
-    })
-
-    this.setData({
-      groupList,
-      categoryList
-    }, () => {
-      this.getCategoryTitleTop()
-    })
   },
   setTabBar() {
     if (typeof this.getTabBar === 'function') {

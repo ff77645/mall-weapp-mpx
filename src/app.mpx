@@ -67,6 +67,8 @@ page {
       "./pages/mine",
       "./pages/product-detail",
       "./pages/payment",
+      "./pages/recipes",
+      "./pages/recipes-detail"
     ],
     "subpackages":[
       {
