@@ -37,13 +37,13 @@
         <text>食谱</text>
       </view>
       <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3">
-        <text>拼猪</text>
+        <text>云养鸡</text>
       </view>
       <view
         bind:touchstart="touchstart"
         bind:touchMove="touchMove"
         class="bg-white flex-1 rounded-md p-3">
-        <text>认养计划</text>
+        <text>云养鸡</text>
       </view>
     </view>
   </scroll-view>
