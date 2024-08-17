@@ -1,18 +1,21 @@
 <template>
   <van-nav-bar
-    title="食谱详情"
+    title="详情"
+    left-arrow
+    bind:click-left="navBack"
   />
   <scroll-view
     class="scrollable"
     scroll-y
   >
     <view style="height:1px;"></view>
+
     <!-- 标题 -->
-    <view class="m-4 rounded-md bg-white py-2 px-3">
+    <view class="m-3 rounded-md bg-white py-2 px-3">
       <view class="font-bold text-sm text-black">
-        烧烤风味的土豆小香肠
+        香煎鸡胸肉
       </view>
-      <view class="text-right text-xs mt-1 text-gray-500">
+      <view class="text-right text-xs mt-2 text-gray-500">
         作者:美食小猪
       </view>
       <view class="text-right text-gray-500 text-xs mt-1">
@@ -20,13 +23,105 @@
         <text>133455收藏</text>
       </view>
     </view>
-    <view class="m-4 bg-white rounded-md p-2">
-      <!-- 功效 -->
-      <view class="text-xs">
-        功效：活血化瘀、活血化瘀、活血化瘀
-      </view>
-      <!--  -->
 
-     </view>
+    <!-- 工艺 -->
+    <view class="m-3 bg-white rounded-md p-2 grid grid-cols-4">
+      <view class="flex justify-center items-center flex-col py-2">
+        <view class="text-xs mb-1">工艺</view>
+        <view class="text-sm font-bold">煎</view>
+      </view>
+      <view class="flex justify-center items-center flex-col py-2">
+        <view class="text-xs mb-1">口味</view>
+        <view class="text-sm font-bold">家常味</view>
+      </view>
+      <view class="flex justify-center items-center flex-col py-2">
+        <view class="text-xs mb-1">时间</view>
+        <view class="text-sm font-bold">10分钟</view>
+      </view>
+      <view class="flex justify-center items-center flex-col py-2">
+        <view class="text-xs mb-1">难度</view>
+        <view class="text-sm font-bold">初级入门</view>
+      </view>
+    </view>
+
+    <!-- 食材 -->
+    <view class="bg-white rounded-md m-3 text-xs">
+      <view class="p-2 flex flex-nowrap">
+        <view class="flex-none p-1">
+          食材:
+        </view>
+        <view class="flex-1 flex flex-wrap gap-2 px-2">
+          <view class="p-1 bg-slate-100 rounded">鸡胸肉 1块</view>
+          <view class="p-1 bg-slate-100 rounded">紫甘蓝 50克</view>
+          <view class="p-1 bg-slate-100 rounded">黄瓜 1根</view>
+          <view class="p-1 bg-slate-100 rounded">秋葵 1根</view>
+          <view class="p-1 bg-slate-100 rounded">圣女果 适量</view>
+        </view>
+      </view>
+      <view class="p-2 flex flex-nowrap">
+        <view class="flex-none p-1">
+          辅料:
+        </view>
+        <view class="flex-1 flex flex-wrap gap-2 px-2">
+          <view class="p-1 bg-slate-100 rounded">食用油 5毫升</view>
+          <view class="p-1 bg-slate-100 rounded">胡椒粉 3克</view>
+          <view class="p-1 bg-slate-100 rounded">盐 3克</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 步骤 -->
+    <view class="m-3 rounded-md bg-white p-2">
+      <step
+        wx:for="{{stepList}}"
+        wx:key="index"
+        content="{{item.content}}"
+        index="{{index + 1}}"
+      />
+    </view>
+
+    <view style="height:1px;"></view>
   </scroll-view>
 </template>
+
+<script>
+import { createPage } from '@mpxjs/core'
+import { navigateBack } from '@mpxjs/api-proxy'
+
+const stepList = [
+  {
+    content: '清水入锅，鸡胸肉焯水去血沫'
+  },
+  {
+    content: '紫甘蓝切丝，黄瓜切片，秋葵切段，圣女果对半切'
+  },
+  {
+    content: '鸡胸肉打花刀'
+  },
+  {
+    content: '倒入食用油，放入鸡胸肉，煎至两面微黄'
+  },
+  {
+    content: '加盐和胡椒粉，煎至两面金黄'
+  }
+]
+
+createPage({
+  data: {
+    stepList
+  },
+  navBack() {
+    navigateBack()
+  }
+})
+</script>
+
+<script name="json">
+
+module.exports = {
+  usingComponents:{
+    'step':'./step'
+  }
+}
+
+</script>

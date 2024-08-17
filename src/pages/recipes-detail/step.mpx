@@ -1,0 +1,28 @@
+<template>
+  <view class="">
+    <view class="text-sm font-bold">第{{index}}步</view>
+    <view class="flex-1 text-sm p-2" >
+      <!-- 图片 -->
+       <image
+        src="https://st-cn.meishij.net/rs/41/203/113291/n113291_154285849558897.jpg"
+        mode="widthFix"
+        class="w-full"
+       ></image>
+       <!-- 文字 -->
+      <view>
+        清水入锅，鸡胸肉焯水去血沫
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    content: String,
+    index: Number
+  }
+})
+</script>

@@ -1,6 +1,8 @@
 <template>
   <van-nav-bar
     title="食谱"
+    left-arrow
+    bind:click-left="navBack"
   />
   <view class="scrollable flex flex-nowrap overflow-hidden">
     <!-- 分类 -->
@@ -11,14 +13,36 @@
         title="{{item.title}}"
       />
     </van-sidebar>
-    <scroll-view
-      scroll-y
-      class="h-full"
+    <view
+      class="flex-1"
     >
-      <view style="height:1px;"></view>
-      <recipes-item></recipes-item>
-      <view style="height:1px;"></view>
-    </scroll-view>
+      <scroll-view
+        scroll-x
+        enable-flex
+        class="flex"
+        style="height:34px;width:calc(100vw - 80px);background:#f7f8fa;"
+      >
+        <view
+          class="flex flex-nowrap items-center gap-2 px-2 text-xs"
+        >
+          <view
+            wx:for="{{10}}"
+            wx:key="index"
+            class="whitespace-nowrap px-2 py-1 rounded-full bg-gray-200"
+          >
+            label {{index}}
+          </view>
+        </view>
+      </scroll-view>
+      <scroll-view
+        scroll-y
+        class="h-full"
+      >
+        <view style="height:1px;"></view>
+        <recipes-item></recipes-item>
+        <view style="height:1px;"></view>
+      </scroll-view>
+    </view>
   </view>
 </template>
 
@@ -27,6 +51,7 @@ import { createPage } from '@mpxjs/core'
 import {
   productCategoryApi
 } from '@/api/product'
+import { navigateBack } from '@mpxjs/api-proxy'
 
 createPage({
   data: {
@@ -49,6 +74,9 @@ createPage({
   async initCategoryList() {
     const res = await productCategoryApi.findAll()
     this.categoryList = res
+  },
+  navBack() {
+    navigateBack()
   }
 })
 </script>

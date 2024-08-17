@@ -81,7 +81,7 @@ createPage({
     console.log({ touch })
   },
   async navToOrder() {
-    this.setData({ title: '6666666' })
+    // this.setData({ title: '6666666' })
     // if (!this.data.openid) await this.getCustomerInfo()
     // mpx.navigateTo({
     //   url: '/pages/order/index'
