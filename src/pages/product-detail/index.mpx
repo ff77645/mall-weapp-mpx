@@ -25,7 +25,7 @@
   </swiper>
 
   <!-- 商品信息 -->
-  <view class="m-3 py-3 px-2 bg-white rounded-md">
+  <view class="m-2 py-3 px-2 bg-white rounded-md">
     <view class="flex items-center justify-between">
       <view class="flex items-center">
         <view class="flex text-red-600 items-center">
@@ -49,7 +49,7 @@
   </view>
 
   <!-- 规格/地址/运费 -->
-  <view class="m-3 bg-white rounded-md overflow-hidden">
+  <view class="m-2 bg-white rounded-md overflow-hidden">
     <!-- 规格 -->
     <view wx:if="{{guides.length}}" class="flex flex-nowrap items-center p-3">
       <view class="text-xs text-gray-600 mr-3">选择</view>
@@ -85,7 +85,7 @@
    <recipes-block></recipes-block>
 
   <!-- 商品详情 -->
-  <view class="m-3 rounded-md bg-white p-2">
+  <view class="m-2 rounded-md bg-white p-2">
     <view class="flex items-center">
       <view class="mr-2" style="background:linear-gradient(to top, rgb(255, 96, 52), rgb(238, 10, 36));width:2px;height:14px;"></view>
       <text class="text-xs font-bold">商品详情</text>
