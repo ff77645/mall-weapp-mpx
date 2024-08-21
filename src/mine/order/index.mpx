@@ -90,6 +90,7 @@ createPage({
     this.findData()
   },
   async findData() {
+    if (!this.customer) return
     const params = {
       page: this.page,
       limit: this.limit,
