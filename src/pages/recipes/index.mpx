@@ -1,12 +1,34 @@
 <template>
   <van-nav-bar
-    title="食谱"
+    border="{{false}}"
     left-arrow
     bind:click-left="navBack"
-  />
+    title-class="nav-bar-title"
+  >
+    <view
+      slot="title"
+      style="padding-right:{{menuButtonLeft}}px;padding-left:32px;"
+      class="flex items-center h-full"
+    >
+      <van-search
+        shape="round"
+        value="{{ searchValue }}"
+        placeholder="搜索食谱"
+        style="--search-padding:0 12px;"
+        class="flex-1"
+        bind:clear="clearSearch"
+        bind:search="onSearch"
+      />
+    </view>
+  </van-nav-bar>
   <view class="scrollable flex flex-nowrap overflow-hidden">
     <!-- 分类 -->
-    <van-sidebar active-key="{{ activeKey }}" class="h-full " style="background-color:var(--sidebar-background-color,#f7f8fa);">
+    <van-sidebar
+      active-key="{{ activeIndex }}"
+      bind:change="changeSidebar"
+      class="h-full"
+      style="background-color:var(--sidebar-background-color,#f7f8fa);"
+    >
       <van-sidebar-item
         wx:for="{{categoryList}}"
         wx:key="id"
@@ -40,7 +62,11 @@
         class="h-full"
       >
         <view style="height:1px;"></view>
-        <recipes-item></recipes-item>
+        <recipes-item
+          wx:for="{{recipesList}}"
+          wx:key="id"
+          item="{{item}}"
+        ></recipes-item>
         <view style="height:1px;"></view>
       </scroll-view>
     </view>
@@ -50,27 +76,71 @@
 <script>
 import { createPage } from '@mpxjs/core'
 import {
-  productCategoryApi
+  productCategoryApi,
+  productRecipeApi
 } from '@/api/product'
 import { navigateBack } from '@mpxjs/api-proxy'
+import { difficultyList } from './difficultyList'
+import { ASSET_BASE_URL } from '@/config/index'
+import { mapState } from '@mpxjs/pinia'
+import { useBasicDataStore } from '@/store/base'
+
+const difficultyMap = difficultyList.map(i => i.name)
 
 createPage({
   data: {
     categoryList: [],
-    recipesList: []
+    recipesList: [],
+    category_id: '',
+    total: 0,
+    page: 1,
+    limit: 10,
+    activeIndex: 0,
+    menuButtonLeft: 0,
+    searchValue: ''
+  },
+  computed: {
+    ...mapState(useBasicDataStore, ['menuRect', 'windowInfo'])
   },
   onLoad() {
+    this.menuButtonLeft = this.windowInfo.windowWidth - this.menuRect.left
     this.initCategoryList()
+    this.getRecipesData()
+  },
+  changeSidebar({ detail }) {
+    this.activeIndex = detail
+    this.category_id = this.categoryList[detail].id
+    this.reQuery()
+  },
+  reQuery() {
+    this.page = 1
+    this.recipesList = []
+    this.getRecipesData()
   },
   async getRecipesData() {
-    this.recipesList = [
-      {
-        title: '红烧肉',
-        effect: '养血,理气、止痛、温阳,升压',
-        ingredients: '五花肉、油菜、生姜、蒜、葱、盐、冰糖、八角、香叶、料酒、老抽、鸡粉、生抽、味精、红曲米、老抽',
-        content: ''
+    const { rows, count } = await productRecipeApi.findAll({
+      page: this.page,
+      limit: this.limit,
+      category_id: this.category_id,
+      title: this.searchValue
+    })
+    rows.forEach(i => {
+      i.difficulty_title = difficultyMap[i.difficulty]
+      if (i.cover_image) {
+        i.cover_image = i.cover_image.startsWith('http') ? i.cover_image : ASSET_BASE_URL + i.cover_image
       }
-    ]
+    })
+
+    this.recipesList = this.recipesList.concat(rows)
+    this.total = count
+  },
+  onSearch({ detail }) {
+    this.searchValue = detail
+    this.reQuery()
+  },
+  clearSearch() {
+    this.searchValue = ''
+    this.reQuery()
   },
   async initCategoryList() {
     const res = await productCategoryApi.findAll()
@@ -82,13 +152,23 @@ createPage({
 })
 </script>
 
+<style>
+.nav-bar-title{
+  max-width: 100% !important;
+  height: 100%;
+}
+.van-nav-bar__left{
+  z-index: 10;
+}
+</style>
 <script name="json">
 
 module.exports = {
   "usingComponents": {
     "van-sidebar": "@vant/weapp/sidebar/index",
     "van-sidebar-item": "@vant/weapp/sidebar-item/index",
-    "recipes-item":"./recipes-item"
+    "recipes-item":"./recipes-item",
+    "van-search": "@vant/weapp/search/index"
   }
 
 }

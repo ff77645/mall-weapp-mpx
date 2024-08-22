@@ -110,10 +110,11 @@
 </template>
 
 <script>
-import mpx, { createPage } from '@mpxjs/core'
+import { createPage } from '@mpxjs/core'
 import { mallOrderApi } from '@/api/mall'
 import { mapState } from '@mpxjs/pinia'
 import { useBasicDataStore } from '@/store/base'
+import { navigateBack, showToast, showLoading, hideLoading } from '@mpxjs/api-proxy'
 
 createPage({
   data: {
@@ -160,11 +161,11 @@ createPage({
   },
 
   navBack() {
-    mpx.navigateBack()
+    navigateBack()
   },
   // 创建单据
   async createMallOrder() {
-    if (!this.currentAddress.id) return mpx.showToast({ title: '请选择收货地址', icon: 'none' })
+    if (!this.currentAddress.id) return showToast({ title: '请选择收货地址', icon: 'none' })
 
     // 地址信息
     const address = {
@@ -201,14 +202,14 @@ createPage({
       customer_id: this.customer.id
     }
     console.log({ billData })
-    mpx.showLoading({
+    showLoading({
       title: '提交订单'
     })
     // 创建订单
     const res = await mallOrderApi.create(billData)
     console.log({ res })
-    if (!res.id) return mpx.hideLoading()
-    mpx.showLoading({ title: '支付中' })
+    if (!res.id) return hideLoading()
+    showLoading({ title: '支付中' })
     this.handlePayment(billData.sum_price, res.id)
   },
   // 支付
@@ -223,7 +224,7 @@ createPage({
       mall_order_id: order_id,
       payment_method: this.payment_method
     })
-    mpx.showToast({ title: '下单成功', icon: 'none' })
+    showToast({ title: '下单成功', icon: 'none' })
     this.showResultModel = true
   },
   onSubmit() {

@@ -84,18 +84,19 @@
 </template>
 
 <script>
-import mpx, { createPage } from '@mpxjs/core'
+import { createPage } from '@mpxjs/core'
 import { useBasicDataStore } from '@/store/base'
 // import { storeToRefs } from '@mpxjs/pinia'
+import { getUserProfile, navigateTo } from '@mpxjs/api-proxy'
 
 createPage({
   setup() {
     // const basicData = storeToRefs(useBasicDataStore())
     const basicData = useBasicDataStore()
-    basicData.initBasicData()
+    // basicData.initBasicData()
 
     const getUserInfo = async () => {
-      const data = await mpx.getUserProfile({ desc: '创建会员' })
+      const data = await getUserProfile({ desc: '创建会员' })
       if (!data.errMsg.endsWith('ok')) return
       const userInfo = data.userInfo
       console.log({ userInfo })
@@ -108,33 +109,33 @@ createPage({
   },
   navToConsumeBill() {
     if (!this.data.openid) return this.getCustomerInfo()
-    mpx.navigateTo({
+    navigateTo({
       url: '/mine/consume-bill/index'
     })
   },
   navToQueueBill() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/mine/queue-bill/index'
     })
   },
   navToReserveBill() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/mine/reserve-bill/index'
     })
   },
   navToCoupon() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/mine/coupon/index'
     })
   },
   navToAddress() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/mine/address/index'
     })
   },
   navToOrder({ mark }) {
     const { type } = mark
-    mpx.navigateTo({
+    navigateTo({
       url: '/mine/order/index?type=' + type
     })
   },

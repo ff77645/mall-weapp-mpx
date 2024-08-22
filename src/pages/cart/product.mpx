@@ -46,8 +46,9 @@
   </view>
 </template>
 <script>
-import mpx, { createComponent } from '@mpxjs/core'
+import { createComponent } from '@mpxjs/core'
 import { ASSET_BASE_URL } from '@/config/index'
+import { navigateTo } from '@mpxjs/api-proxy'
 
 createComponent({
   properties: {
@@ -74,7 +75,7 @@ createComponent({
     },
     navToProductDetail() {
       if (!this.item.product) return
-      mpx.navigateTo({
+      navigateTo({
         url: `/pages/product-detail/index?id=${this.item.product.id}`
       })
     }

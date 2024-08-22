@@ -48,9 +48,10 @@
 </template>
 
 <script>
-import mpx, { computed, createPage, ref, onShow } from '@mpxjs/core'
+import { computed, createPage, ref, onShow } from '@mpxjs/core'
 import { mallCartApi } from '@/api/mall'
 import { useBasicDataStore } from '@/store/base'
+import { showLoading, hideLoading, showModal, showToast, navigateTo } from '@mpxjs/api-proxy'
 
 createPage({
   setup() {
@@ -81,7 +82,7 @@ createPage({
       if (!basicData.customer) {
         await basicData.getCustomerInfo()
       }
-      mpx.showLoading({ title: '加载中' })
+      showLoading({ title: '加载中' })
       const checkedIds = []
       productList.value.forEach(i => {
         if (i.checked) checkedIds.push(i.id)
@@ -93,7 +94,7 @@ createPage({
         i.checked = checkedIds.includes(i.id)
       })
       productList.value = data
-      mpx.hideLoading()
+      hideLoading()
     }
 
     // 选中商品
@@ -116,7 +117,7 @@ createPage({
 
     // 删除单个商品
     const deleteGoodsSingle = (item) => {
-      mpx.showModal({
+      showModal({
         title: '商品删除',
         content: '请确认是否删除当前商品?',
         showCancel: true,
@@ -131,12 +132,12 @@ createPage({
     const deleteGoodsMut = () => {
       const checkedGoods = productList.value.filter(i => i.checked)
       if (!checkedGoods.length) {
-        return mpx.showToast({
+        return showToast({
           title: '请选择商品',
           icon: 'none'
         })
       }
-      mpx.showModal({
+      showModal({
         title: '商品删除',
         content: '请确认是否删除选中商品?',
         showCancel: true,
@@ -163,7 +164,7 @@ createPage({
     const navToPayment = () => {
       const checkedGoods = productList.value.filter(i => i.checked)
       if (!checkedGoods.length) {
-        mpx.showToast({
+        showToast({
           title: '请选择商品',
           icon: 'none'
         })
@@ -178,7 +179,7 @@ createPage({
           // guides_optional: i.guides_optional
         }
       })
-      mpx.navigateTo({
+      navigateTo({
         url: '/pages/payment/index',
         success(e) {
           e.eventChannel.emit('data', data)

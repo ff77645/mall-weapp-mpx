@@ -4,22 +4,25 @@
       style="height:80px;width:80px;"
       mode="aspectFill"
       class="rounded-md mr-2 flex-none"
-      src="https://pic.baike.soso.com/ugc/baikepic2/19661/20181010234657-1366611231_png_437_362_384564.jpg/300"
+      src="{{item.cover_image}}"
     ></image>
     <view class="flex-1 text-xs flex flex-col justify-around">
-      <view class="font-bold line-clamp-1">香芹爆炒香猪</view>
-      <view class="line-clamp-2" style="font-size:12px;">
-        用料:五花肉、油菜、生姜、蒜、葱、盐、冰糖、八角、香叶、料酒、老抽、鸡粉、生抽、味精、红曲米、老抽
+      <view class="font-bold line-clamp-1">{{item.title}}</view>
+      <view class="line-clamp-2 flex flex-wrap gap-1 text-xs" style="font-size:12px;">
+        <view class="rounded px-1 bg-gray-200">{{item.taste}}</view>
+        <view class="rounded px-1 bg-gray-200">{{item.difficulty_title}}</view>
+        <view class="rounded px-1 bg-gray-200">{{item.time}}分钟</view>
       </view>
       <view style="font-size:12px;" class="flex flex-nowrap ">
-        <text class="line-clamp-1 mr-4">133455浏览</text>
-        <text class="line-clamp-1 ">133455收藏</text>
+        <text class="line-clamp-1 mr-4">{{item.views}}浏览</text>
+        <text class="line-clamp-1 ">{{item.favorite}}收藏</text>
       </view>
     </view>
   </view>
 </template>
 <script>
-import mpx, { createComponent } from '@mpxjs/core'
+import { createComponent } from '@mpxjs/core'
+import { navigateTo } from '@mpxjs/api-proxy'
 
 createComponent({
   properties: {
@@ -27,8 +30,11 @@ createComponent({
   },
   methods: {
     navToRecipesDetail() {
-      mpx.navigateTo({
-        url: '/pages/recipes-detail/index'
+      navigateTo({
+        url: '/pages/recipes-detail/index',
+        success: (e) => {
+          e.eventChannel.emit('data', JSON.parse(JSON.stringify(this.item)))
+        }
       })
     }
   }

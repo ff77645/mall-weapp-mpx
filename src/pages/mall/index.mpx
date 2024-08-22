@@ -52,12 +52,13 @@
 </template>
 
 <script>
-import mpx, { createPage } from '@mpxjs/core'
+import { createPage } from '@mpxjs/core'
 import {
   productApi,
   productCategoryApi
 } from '@/api/product'
 import { ASSET_BASE_URL } from '@/config/index'
+import { showLoading, hideLoading, navigateTo } from '@mpxjs/api-proxy'
 
 createPage({
   data: {
@@ -75,7 +76,7 @@ createPage({
     this.getScrollListTop()
   },
   async initProductList() {
-    mpx.showLoading({ title: '加载中' })
+    showLoading({ title: '加载中' })
     const res = await productApi.findAll({ page: 1, limit: 100, warehouse_id: 'all' })
     console.log({ res })
     const ids = []
@@ -93,7 +94,7 @@ createPage({
       }
     })
     this.productList = data
-    mpx.hideLoading()
+    hideLoading()
     setTimeout(() => {
       this.getCategoryTitleTop()
     }, 100)
@@ -161,7 +162,7 @@ createPage({
   },
 
   navToProductDetail(id) {
-    mpx.navigateTo({
+    navigateTo({
       url: '/pages/product-detail/index?id=' + id
     })
   }

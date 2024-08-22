@@ -1,11 +1,17 @@
 import { defineStore } from '@mpxjs/pinia'
 import { customerAddressApi } from '@/api/customer'
 import { wxLogin } from '@/api/login'
-import mpx from '@mpxjs/core'
+import { login, getStorageSync, setStorageSync } from '@mpxjs/api-proxy'
 
 export const useBasicDataStore = defineStore('basic', {
   state: () => {
+    const token = getStorageSync('token') || ''
+    const menuRect = wx.getMenuButtonBoundingClientRect()
+    const windowInfo = wx.getWindowInfo()
+
     return {
+      menuRect,
+      windowInfo,
       // firstName: '',
       // lastName: '',
       customer: null,
@@ -14,7 +20,7 @@ export const useBasicDataStore = defineStore('basic', {
       currentAddress: null,
       appid: 'wxdebec0414d939220',
       orgid: '79748c39-a3de-4350-843d-0fedcd16a896',
-      token: ''
+      token
     }
   },
   getters: {
@@ -26,7 +32,7 @@ export const useBasicDataStore = defineStore('basic', {
     // 查询会员信息
     async getCustomerInfo() {
       if (this.customer) return
-      const data = await mpx.login()
+      const data = await login()
       console.log({ data })
       if (data.errMsg !== 'login:ok') return
       // const res = await customerApi.findForWxCode({ code: data.code })
@@ -34,6 +40,7 @@ export const useBasicDataStore = defineStore('basic', {
       console.log({ res })
       this.openid = res.openid
       this.token = res.token
+      setStorageSync('token', res.token)
       if (res.customer) {
         this.customer = res.customer
       }

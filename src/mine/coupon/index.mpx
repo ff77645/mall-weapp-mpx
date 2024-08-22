@@ -17,7 +17,8 @@
 </template>
 
 <script>
-import mpx, { createPage } from '@mpxjs/core'
+import { createPage } from '@mpxjs/core'
+import { navigateTo, navigateBack } from '@mpxjs/api-proxy'
 
 const tabList = [
   {
@@ -39,12 +40,12 @@ createPage({
     tabActive: 0
   },
   navToOldCoupon() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/mine/coupon-history/index'
     })
   },
   navBack() {
-    mpx.navigateBack()
+    navigateBack()
   }
 })
 </script>

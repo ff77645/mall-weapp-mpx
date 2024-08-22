@@ -2,6 +2,7 @@ import { RequestCache } from '../request-cache'
 import mpx from '@mpxjs/core'
 import mpxFetch from '@mpxjs/fetch'
 import { useBasicDataStore } from '@/store/base'
+import { showToast } from '@mpxjs/api-proxy'
 
 mpx.use(mpxFetch)
 
@@ -16,7 +17,7 @@ const cacheStore = new RequestCache()
 
 const processError = data => {
   const msg = data.message ? String(data.message) : '请求失败'
-  mpx.showToast({
+  showToast({
     title: msg,
     icon: 'none'
   })

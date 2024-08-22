@@ -16,7 +16,8 @@
 </template>
 
 <script>
-import mpx, { createComponent } from '@mpxjs/core'
+import { createComponent } from '@mpxjs/core'
+import { navigateTo } from '@mpxjs/api-proxy'
 
 createComponent({
   properties: {
@@ -28,7 +29,7 @@ createComponent({
       this.triggerEvent('select')
     },
     editAddress() {
-      mpx.navigateTo({
+      navigateTo({
         url: `/mine/address-add/index?id=${this.address.id}`
       })
     }

@@ -7,8 +7,7 @@
   >
     <view
       slot="title"
-      class="custome-nav"
-      style="padding-right:{{menuButtonLeft}}px;"
+      style="padding-right:{{menuButtonLeft}}px;padding-left:32px;"
     >
       商品详情
     </view>
@@ -170,7 +169,7 @@
 </template>
 
 <script>
-import mpx, { createPage, onLoad, ref, getCurrentInstance } from '@mpxjs/core'
+import { createPage, onLoad, ref, getCurrentInstance } from '@mpxjs/core'
 import {
   productApi
   // mallCartApi
@@ -180,6 +179,12 @@ import { ASSET_BASE_URL } from '@/config/index'
 import { useBasicDataStore } from '@/store/base'
 import { storeToRefs } from '@mpxjs/pinia'
 import Big from 'big.js'
+import {
+  switchTab,
+  showToast,
+  navigateBack,
+  navigateTo
+} from '@mpxjs/api-proxy'
 
 createPage({
   setup() {
@@ -193,8 +198,9 @@ createPage({
     const { currentAddress } = storeToRefs(basicData)
     const instance = getCurrentInstance()
 
-    const menuRect = mpx.getMenuButtonBoundingClientRect()
-    const windowInfo = wx.getWindowInfo()
+    const menuRect = basicData.menuRect
+    const windowInfo = basicData.windowInfo
+
     const menuButtonLeft = windowInfo.windowWidth - menuRect.left
     const popupActionType = ref('')
 
@@ -243,7 +249,7 @@ createPage({
         guides: getProductGuides()
       }
       await mallCartApi.create(data)
-      mpx.showToast({
+      showToast({
         title: '添加成功',
         icon: 'success'
       })
@@ -338,7 +344,7 @@ createPage({
         number: number.value,
         guides: getProductGuides()
       }]
-      mpx.navigateTo({
+      navigateTo({
         url: '/pages/payment/index',
         success(e) {
           e.eventChannel.emit('data', data)
@@ -353,7 +359,7 @@ createPage({
     }
 
     const navBack = () => {
-      mpx.navigateBack()
+      navigateBack()
     }
 
     const bindready = (e) => {
@@ -361,13 +367,13 @@ createPage({
     }
 
     const navToHome = () => {
-      mpx.switchTab({
+      switchTab({
         url: '/pages/home/index'
       })
     }
 
     const navToShopingCart = () => {
-      mpx.switchTab({
+      switchTab({
         url: '/pages/cart/index'
       })
     }
@@ -418,9 +424,7 @@ createPage({
 .van-nav-bar__left{
   z-index: 10;
 }
-.custome-nav{
-  padding-left: 32px
-}
+
 </style>
 
 <script name="json">

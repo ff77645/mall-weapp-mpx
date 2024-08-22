@@ -71,10 +71,11 @@
 </template>
 
 <script>
-import mpx, { computed, createPage, ref, onLoad } from '@mpxjs/core'
+import { computed, createPage, ref, onLoad } from '@mpxjs/core'
 import { customerAddressApi } from '@/api/customer'
 import { useBasicDataStore } from '@/store/base'
 import { areaList } from '@vant/area-data'
+import { showLoading, hideLoading, navigateBack } from '@mpxjs/api-proxy'
 
 createPage({
   setup() {
@@ -130,13 +131,13 @@ createPage({
     }
 
     const createAddress = async () => {
-      mpx.showLoading({ title: '创建中' })
+      showLoading({ title: '创建中' })
       const data = getData()
       await customerAddressApi.create(data)
     }
 
     const updateAddress = async () => {
-      mpx.showLoading({ title: '更新中' })
+      showLoading({ title: '更新中' })
       const data = getData()
       await customerAddressApi.update(currentAddressId, data)
     }
@@ -148,8 +149,8 @@ createPage({
         await createAddress()
       }
       await basicData.getAddressList()
-      mpx.hideLoading()
-      mpx.navigateBack()
+      hideLoading()
+      navigateBack()
     }
     const navBarTitle = ref('')
     const initEditData = id => {
@@ -192,7 +193,7 @@ createPage({
     }
   },
   navBack() {
-    mpx.navigateBack()
+    navigateBack()
   }
 })
 </script>

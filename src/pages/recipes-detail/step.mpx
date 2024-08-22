@@ -3,14 +3,33 @@
     <view class="text-sm font-bold">第{{index}}步</view>
     <view class="flex-1 text-sm p-2" >
       <!-- 图片 -->
-       <image
-        src="https://st-cn.meishij.net/rs/41/203/113291/n113291_154285849558897.jpg"
-        mode="widthFix"
-        class="w-full"
-       ></image>
+       <view wx:if="{{images.length > 1}}" class="grid grid-cols-3 gap-2">
+         <view
+          wx:for="{{images}}"
+          wx:key="index"
+          class="overflow-hidden"
+         >
+          <image
+            bind:tap="onPreview(item.index)"
+            src="{{item.url}}"
+            mode="widthFix"
+            class="w-full rounded"
+          ></image>
+         </view>
+       </view>
+       <view wx:else>
+         <image
+          bind:tap="onPreview(item.index)"
+          wx:for="{{images}}"
+          wx:key="index"
+          src="{{item.url}}"
+          mode="widthFix"
+          class="w-full rounded"
+         ></image>
+       </view>
        <!-- 文字 -->
       <view>
-        清水入锅，鸡胸肉焯水去血沫
+        {{content}}
       </view>
     </view>
   </view>
@@ -22,7 +41,13 @@ import { createComponent } from '@mpxjs/core'
 createComponent({
   properties: {
     content: String,
-    index: Number
+    index: Number,
+    images: Array
+  },
+  methods: {
+    onPreview(index) {
+      this.triggerEvent('preview', index)
+    }
   }
 })
 </script>

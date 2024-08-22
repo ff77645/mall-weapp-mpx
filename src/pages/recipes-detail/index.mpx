@@ -13,34 +13,38 @@
     <!-- 标题 -->
     <view class="m-3 rounded-md bg-white py-2 px-3">
       <view class="font-bold text-sm text-black">
-        香煎鸡胸肉
+        {{info.title}}
       </view>
+      <image
+        wx:if="{{info.cover_image}}"
+        src="{{info.cover_image}}"
+        mode="widthFix"
+        class="w-full rounded mt-1"
+        bind:tap="handlePreview({detail:0})"
+      ></image>
       <view class="text-right text-xs mt-2 text-gray-500">
         作者:美食小猪
       </view>
-      <view class="text-right text-gray-500 text-xs mt-1">
-        <text class="mr-3">133455浏览</text>
-        <text>133455收藏</text>
-      </view>
+
     </view>
 
     <!-- 工艺 -->
     <view class="m-3 bg-white rounded-md p-2 grid grid-cols-4">
       <view class="flex justify-center items-center flex-col py-2">
         <view class="text-xs mb-1">工艺</view>
-        <view class="text-sm font-bold">煎</view>
+        <view class="text-sm font-bold">{{info.cook}}</view>
       </view>
       <view class="flex justify-center items-center flex-col py-2">
         <view class="text-xs mb-1">口味</view>
-        <view class="text-sm font-bold">家常味</view>
+        <view class="text-sm font-bold">{{info.taste}}</view>
       </view>
       <view class="flex justify-center items-center flex-col py-2">
         <view class="text-xs mb-1">时间</view>
-        <view class="text-sm font-bold">10分钟</view>
+        <view class="text-sm font-bold">{{info.time}}分钟</view>
       </view>
       <view class="flex justify-center items-center flex-col py-2">
         <view class="text-xs mb-1">难度</view>
-        <view class="text-sm font-bold">初级入门</view>
+        <view class="text-sm font-bold">{{info.difficulty_title}}</view>
       </view>
     </view>
 
@@ -51,11 +55,7 @@
           食材:
         </view>
         <view class="flex-1 flex flex-wrap gap-2 px-2">
-          <view class="p-1 bg-slate-100 rounded">鸡胸肉 1块</view>
-          <view class="p-1 bg-slate-100 rounded">紫甘蓝 50克</view>
-          <view class="p-1 bg-slate-100 rounded">黄瓜 1根</view>
-          <view class="p-1 bg-slate-100 rounded">秋葵 1根</view>
-          <view class="p-1 bg-slate-100 rounded">圣女果 适量</view>
+          <view wx:for="{{makingsList}}" wx:key="index" class="p-1 bg-slate-100 rounded">{{item.title}}</view>
         </view>
       </view>
       <view class="p-2 flex flex-nowrap">
@@ -63,55 +63,75 @@
           辅料:
         </view>
         <view class="flex-1 flex flex-wrap gap-2 px-2">
-          <view class="p-1 bg-slate-100 rounded">食用油 5毫升</view>
-          <view class="p-1 bg-slate-100 rounded">胡椒粉 3克</view>
-          <view class="p-1 bg-slate-100 rounded">盐 3克</view>
+          <view wx:for="{{dosageList}}" wx:key="index" class="p-1 bg-slate-100 rounded">{{item.title}}</view>
         </view>
       </view>
     </view>
 
     <!-- 步骤 -->
-    <view class="m-3 rounded-md bg-white p-2">
+    <view class="m-3 rounded-md bg-white p-2 flex flex-col gap-1">
       <step
         wx:for="{{stepList}}"
         wx:key="index"
-        content="{{item.content}}"
+        content="{{item.text}}"
+        images="{{item.images}}"
         index="{{index + 1}}"
+        bind:preview="handlePreview"
       />
+      <view class="text-gray-500 text-xs mt-1">
+        <text class="mr-3">{{info.views}}浏览</text>
+        <text>{{info.favorite}}收藏</text>
+      </view>
     </view>
-
     <view style="height:1px;"></view>
   </scroll-view>
 </template>
 
 <script>
 import { createPage } from '@mpxjs/core'
-import { navigateBack } from '@mpxjs/api-proxy'
-
-const stepList = [
-  {
-    content: '清水入锅，鸡胸肉焯水去血沫'
-  },
-  {
-    content: '紫甘蓝切丝，黄瓜切片，秋葵切段，圣女果对半切'
-  },
-  {
-    content: '鸡胸肉打花刀'
-  },
-  {
-    content: '倒入食用油，放入鸡胸肉，煎至两面微黄'
-  },
-  {
-    content: '加盐和胡椒粉，煎至两面金黄'
-  }
-]
+import { navigateBack, previewImage } from '@mpxjs/api-proxy'
+import { ASSET_BASE_URL } from '@/config/index'
 
 createPage({
   data: {
-    stepList
+    stepList: [],
+    dosageList: [],
+    makingsList: [],
+    info: {},
+    imageList: []
   },
   navBack() {
     navigateBack()
+  },
+  handlePreview({ detail }) {
+    previewImage({
+      urls: this.imageList,
+      current: this.imageList[detail]
+    })
+  },
+  onLoad() {
+    const eventChannel = this.getOpenerEventChannel()
+    eventChannel.on('data', data => {
+      const steps = JSON.parse(data.steps)
+      const imageList = []
+      let index = 0
+      if (data.cover_image) {
+        imageList.push(data.cover_image)
+        index++
+      }
+      steps.forEach(step => {
+        step.images.forEach(i => {
+          i.url = i.url.startsWith('http') ? i.url : ASSET_BASE_URL + i.url
+          i.index = index++
+          imageList.push(i.url)
+        })
+      })
+      this.imageList = imageList
+      this.stepList = steps
+      this.dosageList = JSON.parse(data.dosages)
+      this.makingsList = JSON.parse(data.makings)
+      this.info = data
+    })
   }
 })
 </script>

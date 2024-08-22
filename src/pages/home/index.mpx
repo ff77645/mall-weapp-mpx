@@ -34,25 +34,26 @@
     <!-- 导航 -->
     <view class="m-4 rounded-md grid grid-cols-2 gap-3">
       <view bind:tap="navToRecipes" class="bg-white flex-1 rounded-md p-3">
-        <text>食谱</text>
+        <text>膳食·攻略</text>
       </view>
-      <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3">
+      <!-- <view bind:tap="navToOrder" class="bg-white flex-1 rounded-md p-3">
         <text>云养鸡</text>
-      </view>
-      <view
+      </view> -->
+      <!-- <view
         bind:touchstart="touchstart"
         bind:touchMove="touchMove"
         class="bg-white flex-1 rounded-md p-3">
         <text>云养鸡</text>
-      </view>
+      </view> -->
     </view>
   </scroll-view>
   <view style="height:calc(50px + env(safe-area-inset-bottom));"></view>
 </template>
 <script>
-import mpx, { createPage } from '@mpxjs/core'
+import { createPage } from '@mpxjs/core'
 import { useBasicDataStore } from '@/store/base'
 import { mapActions } from '@mpxjs/pinia'
+import { navigateBack, navigateTo } from '@mpxjs/api-proxy'
 
 createPage({
   data: {
@@ -65,7 +66,7 @@ createPage({
   },
   ...mapActions(useBasicDataStore, ['initBasicData']),
   navToRecipes() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/pages/recipes/index'
     })
   },
@@ -83,7 +84,7 @@ createPage({
   async navToOrder() {
     // this.setData({ title: '6666666' })
     // if (!this.data.openid) await this.getCustomerInfo()
-    // mpx.navigateTo({
+    // navigateTo({
     //   url: '/pages/order/index'
     // })
   },
@@ -97,17 +98,17 @@ createPage({
     }
   },
   navToReserve() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/pages/reserve/index'
     })
   },
   navToQueue() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/pages/queue/index'
     })
   },
   navBack() {
-    mpx.navigateBack()
+    navigateBack()
   },
   onLoad() {
     this.setTabBar()

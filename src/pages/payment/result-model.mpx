@@ -19,7 +19,8 @@
   </van-popup>
 </template>
 <script>
-import mpx, { createComponent } from '@mpxjs/core'
+import { createComponent } from '@mpxjs/core'
+import { navigateBack, redirectTo } from '@mpxjs/api-proxy'
 
 createComponent({
   properties: {
@@ -27,10 +28,10 @@ createComponent({
   },
   methods: {
     onBack() {
-      mpx.navigateBack()
+      navigateBack()
     },
     navToOrder() {
-      mpx.redirectTo({ url: '/mine/order/index?type=2' })
+      redirectTo({ url: '/mine/order/index?type=2' })
     }
   }
 })

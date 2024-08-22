@@ -42,10 +42,11 @@
 </template>
 
 <script>
-import mpx, { createPage, onLoad } from '@mpxjs/core'
+import { createPage, onLoad } from '@mpxjs/core'
 import { useBasicDataStore } from '@/store/base'
 import { storeToRefs } from '@mpxjs/pinia'
 import { customerAddressApi } from '@/api/customer'
+import { showModal, navigateTo, navigateBack } from '@mpxjs/api-proxy'
 
 createPage({
   setup() {
@@ -62,7 +63,7 @@ createPage({
     }
 
     const deleteAddress = index => {
-      mpx.showModal({
+      showModal({
         title: '删除地址',
         content: '请确认是否删除当前地址?',
         showCancel: true,
@@ -75,7 +76,7 @@ createPage({
 
     const editAddress = index => {
       const address = addressList.value[index]
-      mpx.navigateTo({
+      navigateTo({
         url: `/mine/address-add/index?id=${address.id}`
       })
     }
@@ -87,12 +88,12 @@ createPage({
     }
   },
   addAddress() {
-    mpx.navigateTo({
+    navigateTo({
       url: '/mine/address-add/index'
     })
   },
   navBack() {
-    mpx.navigateBack()
+    navigateBack()
   }
 })
 </script>

@@ -8,3 +8,5 @@ export const productApi = new RestApi('/product/info')
 
 export const productGuideApi = new RestApi('/product/guide/guide')
 export const productGuideItemApi = new RestApi('/product/guide/item')
+
+export const productRecipeApi = new RestApi('/product/recipe/')

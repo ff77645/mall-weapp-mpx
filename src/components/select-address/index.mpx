@@ -32,9 +32,11 @@
   </van-popup>
 </template>
 <script>
-import mpx, { createComponent } from '@mpxjs/core'
+import { createComponent } from '@mpxjs/core'
 import { mapActions, mapState } from '@mpxjs/pinia'
 import { useBasicDataStore } from '@/store/base'
+import { navigateTo } from '@mpxjs/api-proxy'
+
 createComponent({
   properties: {
     show: Boolean
@@ -54,7 +56,7 @@ createComponent({
       this.triggerEvent('close')
     },
     addAddress() {
-      mpx.navigateTo({
+      navigateTo({
         url: '/mine/address-add/index'
       })
     }
