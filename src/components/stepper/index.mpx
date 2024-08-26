@@ -3,12 +3,13 @@
     class="flex flex-nowrap items-center"
   >
     <view
-      class="stepper-minus"
+      class="stepper-minus {{value <= min ? 'opacity-50' : ''}}"
       style="width:18px;height:18px;"
       bind:tap="clickMinus"
     ></view>
     <view class="text-center" style="width:26px;">{{value}}</view>
     <van-icon
+      class="{{value  >= max ? 'opacity-50' : ''}}"
       name="add"
       color="#ee0a24"
       size="20"
@@ -21,14 +22,24 @@ import { createComponent } from '@mpxjs/core'
 
 createComponent({
   properties: {
-    value: Number
+    value: Number,
+    min: {
+      type: Number,
+      value: 1
+    },
+    max: {
+      type: Number,
+      value: 9999
+    }
   },
   methods: {
     clickMinus() {
-      this.triggerEvent('minus', this.data.value - 1)
+      if (this.value <= this.min) return
+      this.triggerEvent('minus', this.value - 1)
     },
     clickPlus() {
-      this.triggerEvent('plus', this.data.value + 1)
+      if (this.value >= this.max) return
+      this.triggerEvent('plus', this.value + 1)
     }
   }
 })
