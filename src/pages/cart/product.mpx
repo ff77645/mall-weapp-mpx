@@ -7,23 +7,38 @@
         icon-size="18"
         bind:change="selectProduct"
         checked-color="#ee0a24"
+        disabled="{{!item.product || !item.product.inventory || item.product.inventory.quantity < item.number}}"
       ></van-checkbox>
     </view>
     <!-- right -->
       <view class="flex-1 flex flex-nowrap items-center">
         <!-- 商品图片 -->
         <view
-        style="width:65px;height:65px;"
-        class="rounded-md flex-none mr-4 text-xs flex justify-center items-center">
+          wx:if="{{!item.product}}"
+          style="width:65px;height:65px;"
+          class="rounded-md flex-none mr-4 text-xs flex justify-center items-center"
+        >
           商品已下架
         </view>
-        <!-- <image
-          src="{{imgUrl}}"
-          mode="aspectFill"
-          class="rounded-md flex-none mr-4"
+        <view
+          wx:else
+          class="rounded-md flex-none mr-4 overflow-hidden relative"
           style="width:65px;height:65px;"
           bind:tap="navToProductDetail"
-        /> -->
+        >
+          <image
+            src="{{imgUrl}}"
+            mode="aspectFill"
+            class="w-full h-full"
+          />
+          <view
+            class="absolute inset-0 flex justify-center items-center text-xs text-white"
+            style="background:rgba(0,0,0,.5)"
+            wx:if="{{!item.product.inventory || item.product.inventory.quantity < item.number}}"
+          >
+            库存不足
+          </view>
+        </view>
 
         <!-- 商品信息 -->
         <view class="flex-1">
@@ -62,6 +77,7 @@ createComponent({
       const imgUrl = head_imgs.length ? ASSET_BASE_URL + head_imgs[0].url : ''
       return imgUrl
     }
+
   },
   methods: {
     selectProduct() {

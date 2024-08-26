@@ -114,7 +114,7 @@ import { createPage } from '@mpxjs/core'
 import { mallOrderApi } from '@/api/mall'
 import { mapState } from '@mpxjs/pinia'
 import { useBasicDataStore } from '@/store/base'
-import { navigateBack, showToast, showLoading, hideLoading } from '@mpxjs/api-proxy'
+import { navigateBack, showToast, showLoading, hideLoading, showModal, navigateTo } from '@mpxjs/api-proxy'
 
 createPage({
   data: {
@@ -209,14 +209,23 @@ createPage({
     const res = await mallOrderApi.create(billData)
     console.log({ res })
     if (!res.id) return hideLoading()
-    showLoading({ title: '支付中' })
-    this.handlePayment(billData.sum_price, res.id)
+    // showLoading({ title: '支付中' })
+    showModal({
+      title: '微信支付',
+      content: `请确认是否支付 ${sum_price / 100} ?`,
+      success: ({ confirm }) => {
+        if (!confirm) {
+          // navigateBack()
+          navigateTo({ url: '/pages/mine/index' })
+        } else {
+          this.handlePayment(billData.sum_price, res.id)
+        }
+      }
+    })
   },
   // 支付
   handlePayment(price, order_id) {
-    setTimeout(() => {
-      this.updateMallOrder(order_id)
-    }, 500)
+    this.updateMallOrder(order_id)
   },
   // 支付成功更新订单状态
   async updateMallOrder(order_id) {

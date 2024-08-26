@@ -28,19 +28,36 @@
           bind:tap="navToProductDetail(item.id)"
         >
           <!-- 商品图片 -->
-          <image
-            src="{{ASSET_BASE_URL + item.url}}"
-            mode="aspectFill"
-            class="w-full flex-none"
-            lazy-load
-          />
+           <!-- hasQuantity -->
+          <view
+            class="w-full flex-none relative"
+          >
+            <image
+              src="{{ASSET_BASE_URL + item.url}}"
+              mode="aspectFill"
+              class="w-full"
+              lazy-load
+            />
+            <view
+              wx:if="{{!item.hasQuantity}}"
+              style="background:rgba(0,0,0,.5);"
+              class="absolute inset-0 flex items-center justify-center flex-col"
+            >
+              <view class="mb-2 text-white font-bold text-sm">已售罄</view>
+              <van-button capture-catch:tap="turnOnReminders" icon="bullhorn-o" type="danger" size="small" round>开售提醒</van-button>
+            </view>
+          </view>
           <view class="p-2 flex-1 flex flex-col justify-between overflow-hidden self-stretch">
             <view>
-              <view class=" text-gray-900 van-multi-ellipsis--l2">{{item.title}}</view>
+              <view class="flex flex-nowrap justify-between items-center gap-1">
+                <view class=" text-gray-900 van-multi-ellipsis--l2">{{item.title}}</view>
+                <view wx:if="{{item.hasQuantity && item.inventory.quantity < 10}}" class="text-xs text-red-600 flex-none">剩余 {{item.inventory.quantity - 0}}</view>
+              </view>
               <view class="text-gray-600 text-xs van-multi-ellipsis--l2">{{item.sub_title}}</view>
             </view>
             <view class="flex justify-between items-center">
-              <view class="text-gray-500" style="font-size:10px;">已购1万</view>
+              <!-- <view class="text-gray-500" style="font-size:10px;">已购1万</view> -->
+              <view></view>
               <view class="text-red-500 font-bold text-sm">￥{{item.retail_price / 100}}</view>
             </view>
           </view>
@@ -75,6 +92,13 @@ createPage({
     this.initCategoryList()
     this.getScrollListTop()
   },
+  // onShow() {
+  //   if (this._inited) this.initProductList()
+  //   this._inited = true
+  // },
+  async turnOnReminders() {
+    console.log('turnOnReminders')
+  },
   async initProductList() {
     showLoading({ title: '加载中' })
     const res = await productApi.findAll({ page: 1, limit: 100, warehouse_id: 'all' })
@@ -92,6 +116,7 @@ createPage({
         item.active_id = item.category_id
         ids.push(item.category_id)
       }
+      item.hasQuantity = item.inventory ? item.inventory.quantity > 0 : false
     })
     this.productList = data
     hideLoading()

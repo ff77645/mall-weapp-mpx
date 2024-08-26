@@ -17,11 +17,23 @@
     scroll-y
   >
   <!-- 轮播 -->
-  <swiper indicator-dots class="" style="height: 750rpx;">
-    <swiper-item wx:for="{{swiperList}}" wx:key="index">
-      <image class="w-full h-full object-center object-cover" lazy-load="{{true}}" src="{{item.src}}" mode="aspectFill"/>
-    </swiper-item>
-  </swiper>
+  <view style="height: 750rpx;" class="relative">
+    <swiper indicator-dots class="h-full">
+      <swiper-item wx:for="{{swiperList}}" wx:key="index">
+        <image class="w-full h-full object-center object-cover" lazy-load="{{true}}" src="{{item.src}}" mode="aspectFill"/>
+      </swiper-item>
+    </swiper>
+    <!-- 开售提醒 -->
+    <view
+      wx:if="{{!hasQuantity}}"
+      class="px-2 py-1 text-xs absolute bottom-0 left-0 w-full flex items-center"
+      style="background:rgba(255,255,255,.75)"
+    >
+      <!-- <view class="mr-2 font-bold">是否在商品开售后立即提醒您?</view> -->
+      <view class="mr-2 font-bold">开启提醒,开售后立即通知您</view>
+      <van-button type="danger" size="mini" round>开启提醒</van-button>
+    </view>
+  </view>
 
   <!-- 商品信息 -->
   <view class="m-2 py-3 px-2 bg-white rounded-md">
@@ -32,11 +44,15 @@
           <text class="text-lg font-bold">{{productPrice / 100}}</text>
           <text class="text-xs pt-2px ml-2px"> 起</text>
         </view>
-        <view class="text-gray-600 line-through text-xs ml-1">￥59起</view>
+        <!-- <view class="text-gray-600 line-through text-xs ml-1">￥59起</view> -->
       </view>
       <view class="text-gray-600" style="font-size:12px;">
-        <text wx:if="{{inventorys > 0}}">库存 {{inventorys}} {{productInfo.unit || ''}}</text>
-        <text wx:else>暂无库存</text>
+        <view wx:if="{{hasQuantity}}">
+          剩余 {{productInfo.inventory.quantity - 0}}
+          <!-- <view wx:if="{{productInfo.inventory.quantity < 10}}">剩余 {{productInfo.inventory.quantity - 0}}</view>
+          <view wx:else></view> -->
+        </view>
+        <view wx:else>已售罄</view>
       </view>
     </view>
     <view class="flex text-sm font-bold mt-2">
@@ -112,6 +128,7 @@
   <van-goods-action-button
     text="立即购买"
     bind:click="openGuideModel('buy')"
+    disabled="{{!hasQuantity}}"
   />
 </van-goods-action>
 <view style="height:50px;"></view>
@@ -178,7 +195,7 @@ import { mallCartApi } from '@/api/mall'
 import { ASSET_BASE_URL } from '@/config/index'
 import { useBasicDataStore } from '@/store/base'
 import { storeToRefs } from '@mpxjs/pinia'
-import Big from 'big.js'
+// import Big from 'big.js'
 import {
   switchTab,
   showToast,
@@ -205,6 +222,7 @@ createPage({
     const popupActionType = ref('')
 
     const number = ref(1)
+    const hasQuantity = ref(true)
 
     const onPlus = () => {
       number.value++
@@ -305,14 +323,6 @@ createPage({
       }).exec()
     }
 
-    const inventorys = ref('')
-    const initInventorys = data => {
-      const num = data.reduce((big, item) => {
-        return big.plus(item.quantity)
-      }, Big(0)).toNumber()
-      inventorys.value = num
-    }
-
     // 初始化数据
     const initData = async (id) => {
       const res = await productApi.findOne(id)
@@ -323,9 +333,11 @@ createPage({
       swiperList.value = head_imgs
       productInfo.value = res
       productPrice.value = res.retail_price
+      if (!res.inventory || res.inventory.quantity < 1) {
+        hasQuantity.value = false
+      }
       console.log('initData', { res })
       initGuides(res.guides)
-      initInventorys(res.inventorys || [])
       const detail = res.detail ? JSON.parse(res.detail) : []
       if (detail.length) {
         setEditorContent(detail)
@@ -386,7 +398,7 @@ createPage({
     }
 
     return {
-      inventorys,
+      hasQuantity,
       closeAddressListPopup,
       openAddressListPopup,
       showAddressList,

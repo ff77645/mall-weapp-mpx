@@ -64,7 +64,10 @@ createPage({
     // 是否全部选中
     const isCheckedAll = computed(() => {
       if (!productList.value.length) return false
-      return productList.value.every(i => i.checked)
+      return productList.value.every(i => {
+        if (!i.product) return true
+        return i.checked
+      })
     })
 
     // 选中商品总价
