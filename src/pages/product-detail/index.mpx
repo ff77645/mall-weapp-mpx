@@ -24,15 +24,14 @@
       </swiper-item>
     </swiper>
     <!-- 开售提醒 -->
-    <view
+    <!-- <view
       wx:if="{{!hasQuantity}}"
       class="px-2 py-1 text-xs absolute bottom-0 left-0 w-full flex items-center"
       style="background:rgba(255,255,255,.75)"
     >
-      <!-- <view class="mr-2 font-bold">是否在商品开售后立即提醒您?</view> -->
       <view class="mr-2 font-bold">开启提醒,开售后立即通知您</view>
       <van-button type="danger" size="mini" round>开启提醒</van-button>
-    </view>
+    </view> -->
   </view>
 
   <!-- 商品信息 -->
@@ -111,7 +110,6 @@
         style="height:auto;"
         class=""
         wx:ref="editor"
-        bind:ready="bindready"
       ></editor>
     </view>
   </view>
@@ -120,15 +118,22 @@
 <van-goods-action class="z-10">
   <van-goods-action-icon bind:tap="navToHome" icon="wap-home-o" text="首页" />
   <van-goods-action-icon bind:tap="navToShopingCart" icon="cart-o" text="购物车" />
+  <block wx:if="{{hasQuantity}}">
+    <van-goods-action-button
+      text="加入购物车"
+      type="warning"
+      bind:click="openGuideModel('cart')"
+    />
+    <van-goods-action-button
+      text="立即购买"
+      bind:click="openGuideModel('buy')"
+      disabled="{{!hasQuantity}}"
+    />
+  </block>
   <van-goods-action-button
-    text="加入购物车"
+    wx:else
+    text="开售提醒"
     type="warning"
-    bind:click="openGuideModel('cart')"
-  />
-  <van-goods-action-button
-    text="立即购买"
-    bind:click="openGuideModel('buy')"
-    disabled="{{!hasQuantity}}"
   />
 </van-goods-action>
 <view style="height:50px;"></view>
@@ -167,17 +172,17 @@
     ></i-stepper>
   </view>
   <van-goods-action custom-class="px-2 z-10">
-      <van-goods-action-button
-        wx:if="{{!popupActionType || popupActionType==='cart'}}"
-        text="加入购物车"
-        type="warning"
-        bind:click="addToShopingCart"
-      />
-      <van-goods-action-button
-        wx:if="{{!popupActionType || popupActionType==='buy'}}"
-        text="立即购买"
-        bind:click="clickBuyNow"
-      />
+    <van-goods-action-button
+      wx:if="{{!popupActionType || popupActionType==='cart'}}"
+      text="加入购物车"
+      type="warning"
+      bind:click="addToShopingCart"
+    />
+    <van-goods-action-button
+      wx:if="{{!popupActionType || popupActionType==='buy'}}"
+      text="立即购买"
+      bind:click="clickBuyNow"
+    />
   </van-goods-action>
   <view style="height:50px;"></view>
   <view class="safe-area-inset-bottom"></view>
@@ -186,16 +191,14 @@
 </template>
 
 <script>
-import { createPage, onLoad, ref, getCurrentInstance } from '@mpxjs/core'
+import { createPage } from '@mpxjs/core'
 import {
   productApi
-  // mallCartApi
 } from '@/api/product'
 import { mallCartApi } from '@/api/mall'
 import { ASSET_BASE_URL } from '@/config/index'
 import { useBasicDataStore } from '@/store/base'
-import { storeToRefs } from '@mpxjs/pinia'
-// import Big from 'big.js'
+import { mapActions, mapState } from '@mpxjs/pinia'
 import {
   switchTab,
   showToast,
@@ -204,228 +207,182 @@ import {
 } from '@mpxjs/api-proxy'
 
 createPage({
-  setup() {
-    const productInfo = ref({})
-    const guides = ref([])
-    const showGuideModel = ref(false)
-    const showAddressList = ref(false)
-    const swiperList = ref([])
-    const productPrice = ref(0)
-    const basicData = useBasicDataStore()
-    const { currentAddress } = storeToRefs(basicData)
-    const instance = getCurrentInstance()
-
-    const menuRect = basicData.menuRect
-    const windowInfo = basicData.windowInfo
-
-    const menuButtonLeft = windowInfo.windowWidth - menuRect.left
-    const popupActionType = ref('')
-
-    const number = ref(1)
-    const hasQuantity = ref(true)
-
-    const onPlus = () => {
-      number.value++
+  data: {
+    productInfo: [],
+    guides: [],
+    swiperList: [],
+    showGuideModel: false,
+    showAddressList: false,
+    popupActionType: '', // 操作类型
+    number: 1, // 购买数量
+    hasQuantity: true, // 是否有库存
+    productPrice: 0 // 商品价格
+    // mine_price: 0, // 最低价格
+    // max_price: 0 // 最高价格
+  },
+  computed: {
+    ...mapState(useBasicDataStore, ['menuRect', 'windowInfo', 'currentAddress', 'customer']),
+    menuButtonLeft() {
+      return this.windowInfo.windowWidth - this.menuRect.left
     }
-    const onMinus = () => {
-      number.value--
-    }
-
-    const openGuideModel = (type) => {
-      popupActionType.value = type
-      showGuideModel.value = true
-    }
-
-    const closeGuideModel = () => {
-      showGuideModel.value = false
-    }
-
-    // 组装商品规格
-    const getProductGuides = () => {
-      let _guides = ''
-      guides.value.forEach(guide => {
-        guide.children.forEach(i => {
-          if (i.checked) {
-            _guides += i.title
-          }
-        })
-      })
-      return _guides || undefined
-    }
-
-    // 添加到购物车
-    const addToShopingCart = async () => {
-      if (!basicData.customer.id) {
-        await basicData.getCustomerInfo()
-      }
-      const data = {
-        customer_id: basicData.customer.id,
-        product_id: productInfo.value.id,
-        number: number.value,
-        unit_price: productInfo.value.retail_price,
-        title: productInfo.value.title,
-        guides: getProductGuides()
-      }
-      await mallCartApi.create(data)
-      showToast({
-        title: '添加成功',
-        icon: 'success'
-      })
-      closeGuideModel()
-    }
-
-    // 查询商品规格
-    const initGuides = data => {
-      data.forEach(guide => {
-        guide.children.forEach((item, index) => {
-          item.checked = index === 0
-        })
-      })
-      guides.value = data
-    }
-
-    // 选择规格
-    const selectGuide = (guideId, itemId) => {
-      guides.value.forEach(guide => {
-        if (guide.id === guideId) {
-          guide.children.forEach(i => {
-            i.checked = i.id === itemId
-          })
+  },
+  onLoad(opts) {
+    this.findData(opts.id)
+  },
+  ...mapActions(useBasicDataStore, ['getCustomerInfo']),
+  onPlus() {
+    this.number++
+  },
+  onMinus() {
+    this.number--
+  },
+  openGuideModel(type) {
+    this.popupActionType = type
+    this.showGuideModel = true
+  },
+  closeGuideModel() {
+    this.showGuideModel = false
+  },
+  // 组装商品规格
+  getProductGuides() {
+    const guideArr = []
+    this.guides.forEach(guide => {
+      guide.children.forEach(i => {
+        if (i.checked) {
+          guideArr.push(i)
         }
       })
-    }
-
-    // 设置商品详情
-    const setEditorContent = delta => {
-      const editor = instance.target.$refs.editor
-      editor.context(({ context }) => {
-        console.log({ context })
-        delta.forEach(item => {
-          item.attributes = item.attributes || {}
-          item.attributes.backgroundColor = item.attributes.background
-          item.attributes.wordBreak = 'break-all'
-          item.attributes.wordWrap = 'break-word'
-          item.attributes.whiteSpace = 'normal'
-          item.attributes.overflowWrap = 'break-word'
-          if (typeof item.insert === 'object' && item.insert.image) {
-            item.attributes.width = '100%'
-          }
-        })
-        context.setContents({
-          delta,
-          success(success) {
-            console.log({ success })
-          },
-          fail(fail) {
-            console.log({ fail })
-          }
-        })
-      }).exec()
-    }
-
-    // 初始化数据
-    const initData = async (id) => {
-      const res = await productApi.findOne(id)
-      const head_imgs = res.head_imgs ? JSON.parse(res.head_imgs) : []
-      head_imgs.forEach(i => {
-        i.src = ASSET_BASE_URL + i.url
-      })
-      swiperList.value = head_imgs
-      productInfo.value = res
-      productPrice.value = res.retail_price
-      if (!res.inventory || res.inventory.quantity < 1) {
-        hasQuantity.value = false
-      }
-      console.log('initData', { res })
-      initGuides(res.guides)
-      const detail = res.detail ? JSON.parse(res.detail) : []
-      if (detail.length) {
-        setEditorContent(detail)
-      }
-    }
-
-    onLoad((opts) => {
-      initData(opts.id)
-      // findGuides(opts.id)
     })
+    guideArr.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at))
+    const guideTitles = guideArr.map(i => i.title)
+    return guideTitles.length ? guideTitles.join('/') : undefined
+  },
+  // 添加到购物车
 
-    // 立即购买
-    const clickBuyNow = () => {
-      const data = [{
-        ...productInfo.value,
-        number: number.value,
-        guides: getProductGuides()
-      }]
-      navigateTo({
-        url: '/pages/payment/index',
-        success(e) {
-          e.eventChannel.emit('data', data)
+  async addToShopingCart() {
+    if (!this.customer.id) {
+      await this.getCustomerInfo()
+    }
+    const data = {
+      customer_id: this.customer.id,
+      product_id: this.productInfo.id,
+      number: this.number,
+      unit_price: this.productInfo.retail_price,
+      title: this.productInfo.title,
+      guides: this.getProductGuides()
+    }
+    await mallCartApi.create(data)
+    showToast({
+      title: '添加成功',
+      icon: 'success'
+    })
+    this.closeGuideModel()
+  },
+  // 查询商品规格
+  initGuides(data) {
+    data.forEach(guide => {
+      guide.children.forEach((item, index) => {
+        item.checked = index === 0
+      })
+    })
+    this.guides = data
+  },
+  // 选择规格
+  selectGuide(guideId, itemId) {
+    const guides = JSON.parse(JSON.stringify(this.guides))
+    guides.forEach(guide => {
+      if (guide.id === guideId) {
+        guide.children.forEach(i => {
+          i.checked = i.id === itemId
+        })
+      }
+    })
+    this.guides = guides
+  },
+  // 设置商品详情
+  setEditorContent(delta) {
+    const editor = this.$refs.editor
+    editor.context(({ context }) => {
+      console.log({ context })
+      delta.forEach(item => {
+        item.attributes = item.attributes || {}
+        item.attributes.backgroundColor = item.attributes.background
+        item.attributes.wordBreak = 'break-all'
+        item.attributes.wordWrap = 'break-word'
+        item.attributes.whiteSpace = 'normal'
+        item.attributes.overflowWrap = 'break-word'
+        if (typeof item.insert === 'object' && item.insert.image) {
+          item.attributes.width = '100%'
         }
       })
-      closeGuideModel()
-    }
-
-    // 选择规格确认
-    const selectGuideConfirm = () => {
-
-    }
-
-    const navBack = () => {
-      navigateBack()
-    }
-
-    const bindready = (e) => {
-      console.log({ e })
-    }
-
-    const navToHome = () => {
-      switchTab({
-        url: '/pages/home/index'
+      context.setContents({
+        delta,
+        success(success) {
+          console.log({ success })
+        },
+        fail(fail) {
+          console.log({ fail })
+        }
       })
+    }).exec()
+  },
+  // 初始化数据
+  async findData(id) {
+    const res = await productApi.findOne(id)
+    const head_imgs = res.head_imgs ? JSON.parse(res.head_imgs) : []
+    head_imgs.forEach(i => {
+      i.src = ASSET_BASE_URL + i.url
+    })
+    this.swiperList = head_imgs
+    this.productInfo = res
+    this.productPrice = res.retail_price
+    // this.mine_price = res.mine_price
+    // this.max_price = res.max_price
+    if (!res.inventory || res.inventory.quantity < 1) {
+      this.hasQuantity = false
     }
-
-    const navToShopingCart = () => {
-      switchTab({
-        url: '/pages/cart/index'
-      })
+    console.log('initData', { res })
+    this.initGuides(res.guides)
+    const detail = res.detail ? JSON.parse(res.detail) : []
+    if (detail.length) {
+      this.setEditorContent(detail)
     }
-
-    const openAddressListPopup = () => {
-      showAddressList.value = true
-    }
-    const closeAddressListPopup = () => {
-      showAddressList.value = false
-    }
-
-    return {
-      hasQuantity,
-      closeAddressListPopup,
-      openAddressListPopup,
-      showAddressList,
-      currentAddress,
-      popupActionType,
-      number,
-      onPlus,
-      onMinus,
-      menuButtonLeft,
-      productPrice,
-      productInfo,
-      guides,
-      selectGuide,
-      showGuideModel,
-      openGuideModel,
-      closeGuideModel,
-      addToShopingCart,
-      clickBuyNow,
-      selectGuideConfirm,
-      navBack,
-      swiperList,
-      bindready,
-      navToHome,
-      navToShopingCart
-    }
+  },
+  // 立即购买
+  clickBuyNow() {
+    const data = [{
+      ...this.productInfo,
+      number: this.number,
+      guides: this.getProductGuides()
+    }]
+    navigateTo({
+      url: '/pages/payment/index',
+      success(e) {
+        e.eventChannel.emit('data', data)
+      }
+    })
+    this.closeGuideModel()
+  },
+  selectGuideConfirm() {},
+  navBack() {
+    navigateBack()
+  },
+  navToHome() {
+    switchTab({
+      url: '/pages/home/index'
+    })
+  },
+  navToShopingCart() {
+    switchTab({
+      url: '/pages/cart/index'
+    })
+  },
+  openAddressListPopup() {
+    this.showAddressList = true
+  },
+  closeAddressListPopup() {
+    this.showAddressList = false
   }
-
 })
 </script>
 

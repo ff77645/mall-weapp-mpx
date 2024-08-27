@@ -52,7 +52,7 @@
           配送说明: 商家集送是由商家在 <text class="font-bold">每周日</text> 对本周产生的所有订单进行统一配送,现杀现卖,冷链运输。
         </view>
         <view class="font-bold">
-          仅支持: 成都: 双流区、武侯区、高新区、龙泉驿区。
+          区域限制: 一号线广福地铁站半径 6 公里范围内。
         </view>
       </view>
     </view>
@@ -100,6 +100,7 @@
   </scroll-view>
   <van-submit-bar
     price=""
+    disabled="{{disabledSubmit}}"
     button-text="提交订单"
     bind:submit="onSubmit"
   />
@@ -126,6 +127,7 @@ createPage({
     delivery_method: 0,
     payment_method: 0,
     showResultModel: false
+    // disabledSubmit: false
   },
   computed: {
     ...mapState(useBasicDataStore, ['customer', 'addressList', 'currentAddress']),
@@ -142,6 +144,9 @@ createPage({
         number += i.number
       })
       return number
+    },
+    disabledSubmit() {
+      return false
     }
   },
   onLoad() {

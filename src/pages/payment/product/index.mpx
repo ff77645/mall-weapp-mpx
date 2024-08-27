@@ -15,7 +15,7 @@
           <view class="text-sm font-bold van-multi-ellipsis--l2">{{product.title}}</view>
           <view class="text-gray-600 text-xs mt-1" wx:if="{{product.guides}}">{{product.guides}}</view>
         </view>
-        <view class="mt-3">
+        <view class="mt-1">
           <view class="text-red-600 font-bold text-sm">￥{{product.retail_price / 100}}</view>
           <view class="flex items-center">
             <van-icon name="close" size="12" />
